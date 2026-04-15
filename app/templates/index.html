@@ -3,52 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Price Prediction</title>
+    <title>Stock Price Prediction App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Stock Flow AI</h1>
-            <p>Predict future stock movements using advanced ML model data</p>
-        </header>
+    <nav>
+        <div class="nav-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            Stock Price Prediction
+        </div>
+        <div class="nav-links">
+            <a href="#" style="color: white; text-decoration: none;">Home</a>
+            <a href="#" style="color: inherit; text-decoration: none;">About</a>
+            <a href="#" style="color: inherit; text-decoration: none;">Contact</a>
+            <button class="nav-btn">Predict</button>
+        </div>
+    </nav>
 
-        <div class="card">
-            <form id="predict-form">
-                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
-                    <select id="market" style="padding: 15px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.1); outline: none; cursor: pointer; font-size: 1rem;">
-                        <option value="IN" selected style="color: black;">Indian Market (₹)</option>
-                        <option value="US" style="color: black;">US Market ($)</option>
-                    </select>
+    <div class="hero">
+        <h1>Stock Price Prediction App 🔮</h1>
+        <p>Enter a stock symbol below to predict its future price!</p>
+        
+        <form id="predict-form">
+            <div class="market-selector-wrapper">
+                <select id="market">
+                    <option value="IN" selected>Indian Market (₹)</option>
+                    <option value="US">US Market ($)</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="symbol" placeholder="Enter Stock Symbol (e.g. TCS.NS)" autocomplete="off">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </div>
-                <div class="input-group">
-                    <input type="text" id="symbol" placeholder="Enter Symbol (e.g., RELIANCE or AAPL)" required autocomplete="off">
-                    <button type="submit" id="predict-btn">Predict</button>
-                </div>
-            </form>
+                <button type="submit" id="predict-btn" class="predict-btn-main">Predict</button>
+            </div>
+        </form>
+    </div>
 
-            <div id="loading" class="hidden">
-                <div class="spinner"></div>
-                <p>Analyzing market data...</p>
+    <div id="loading" class="hidden">
+        <div class="spinner"></div>
+        <p>Analyzing Neural Network Tensors...</p>
+    </div>
+    <div id="error-message" class="error hidden" style="margin-top:20px; color:#ef4444;"></div>
+
+    <div class="dashboard-area hidden" id="result">
+        <!-- Main Large Card -->
+        <div class="main-result-card">
+            
+            <div class="price-details">
+                <div class="company-header">
+                    <div class="company-logo" id="res-logo">TCS</div>
+                    <div>
+                        <p class="company-name" id="res-symbol">TCS.NS - Tata Consultancy Services</p>
+                        <p class="sub-text">Predicted Price for Next Day:</p>
+                    </div>
+                </div>
+                
+                <h1 class="predicted-price-large" id="res-predicted-price">₹ 3,648.75</h1>
+                <p class="price-change text-green" id="res-change">▲ +25.45 (+0.70%)</p>
+                
+                <div style="margin-top: 15px;">
+                    <span id="res-recommendation" style="padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.9rem; letter-spacing: 1px;"></span>
+                </div>
+                
+                <div style="margin-top: 40px; opacity: 0.3;">
+                    <!-- A decorative green upward swoosh vector could go here -->
+                    <svg viewBox="0 0 100 50" width="100%" height="150" preserveAspectRatio="none">
+                        <path d="M0,50 Q25,40 50,25 T100,0 L100,50 Z" fill="url(#greenGradient)" />
+                        <defs>
+                            <linearGradient id="greenGradient" x1="0" y1="1" x2="0" y2="0">
+                                <stop offset="0%" stop-color="#10b981" stop-opacity="0" />
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0.5" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
             </div>
 
-            <div id="result" class="hidden">
-                <h2>Prediction for <span id="res-symbol"></span></h2>
-                <div class="stats">
-                    <div class="stat-box">
-                        <h3>Last Price</h3>
-                        <p id="res-last-price"></p>
-                    </div>
-                    <div class="stat-box highlight">
-                        <h3>Predicted Price</h3>
-                        <p id="res-predicted-price"></p>
-                    </div>
+            <!-- Chart Area -->
+            <div class="chart-area">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                    <select id="chart-type" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 5px 10px; outline: none; font-family: 'Inter'; cursor: pointer;">
+                        <option value="candlestick" style="color: black;">Candlestick Pattern</option>
+                        <option value="line" style="color: black;">Line / Area Graph</option>
+                        <option value="bar" style="color: black;">Volume / Bar Chart</option>
+                    </select>
+                </div>
+                <div id="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- 3 Bottom Stats Cards -->
+        <div class="bottom-stats">
+            <div class="mini-stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <div>
+                    <p class="stat-label">Last Open</p>
+                    <p class="stat-value" id="stat-open">₹ 3,536.90</p>
                 </div>
             </div>
             
-            <div id="error-message" class="error hidden"></div>
+            <div class="mini-stat-card center">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                <div>
+                    <p class="stat-label">Last High</p>
+                    <p class="stat-value" id="stat-high">₹ 3,611.80</p>
+                </div>
+            </div>
+            
+            <div class="mini-stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                <div>
+                    <p class="stat-label">Last Low</p>
+                    <p class="stat-value" id="stat-low">₹ 3,522.90</p>
+                </div>
+            </div>
         </div>
     </div>
 

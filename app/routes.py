@@ -33,7 +33,19 @@ def predict():
             'symbol': symbol,
             'prediction': result['predicted_price'],
             'last_price': result['last_price'],
-            'currency_symbol': get_currency_symbol(symbol)
+            'currency_symbol': get_currency_symbol(symbol),
+            'historical_dates': result['historical_dates'],
+            'historical_open': result['historical_open'],
+            'historical_high': result['historical_high'],
+            'historical_low': result['historical_low'],
+            'historical_close': result['historical_close'],
+            'change': result['change'],
+            'percent_change': result['percent_change'],
+            'recommendation': result['recommendation'],
+            'company_name': result['company_name'],
+            'last_open': result['last_open'],
+            'last_high': result['last_high'],
+            'last_low': result['last_low']
         })
         
     except Exception as e:
