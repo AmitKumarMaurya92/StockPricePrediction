@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Stock Flow AI</h1>
+            <p>Predict future stock movements using advanced ML model data</p>
+        </header>
+
+        <div class="card">
+            <form id="predict-form">
+                <div class="input-group">
+                    <input type="text" id="symbol" placeholder="Enter Stock Symbol (e.g., AAPL)" required autocomplete="off">
+                    <button type="submit" id="predict-btn">Predict</button>
+                </div>
+            </form>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Analyzing market data...</p>
+            </div>
+
+            <div id="result" class="hidden">
+                <h2>Prediction for <span id="res-symbol"></span></h2>
+                <div class="stats">
+                    <div class="stat-box">
+                        <h3>Last Price</h3>
+                        <p id="res-last-price"></p>
+                    </div>
+                    <div class="stat-box highlight">
+                        <h3>Predicted Price</h3>
+                        <p id="res-predicted-price"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="error-message" class="error hidden"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
