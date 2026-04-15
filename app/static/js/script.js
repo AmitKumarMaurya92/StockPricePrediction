@@ -2,6 +2,7 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
     e.preventDefault();
     
     const symbol = document.getElementById('symbol').value;
+    const market = document.getElementById('market').value;
     const btn = document.getElementById('predict-btn');
     const loading = document.getElementById('loading');
     const resultDiv = document.getElementById('result');
@@ -21,15 +22,15 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ symbol })
+            body: JSON.stringify({ symbol, market })
         });
         
         const data = await response.json();
         
         if (data.success) {
             document.getElementById('res-symbol').textContent = data.symbol;
-            document.getElementById('res-last-price').textContent = `$${data.last_price.toFixed(2)}`;
-            document.getElementById('res-predicted-price').textContent = `$${data.prediction.toFixed(2)}`;
+            document.getElementById('res-last-price').textContent = `${data.currency_symbol}${data.last_price.toFixed(2)}`;
+            document.getElementById('res-predicted-price').textContent = `${data.currency_symbol}${data.prediction.toFixed(2)}`;
             resultDiv.classList.remove('hidden');
         } else {
             throw new Error(data.error || 'Prediction failed');

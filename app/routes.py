@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from src.predict import predict_stock_price
+from app.utils import get_currency_symbol, format_error_message
 
 bp = Blueprint('main', __name__)
 
@@ -11,24 +12,31 @@ def index():
 def predict():
     try:
         data = request.json
-        symbol = data.get('symbol')
+        symbol = data.get('symbol', '').strip().upper()
+        market = data.get('market', 'US')
         
         if not symbol:
             return jsonify({'success': False, 'error': 'Stock symbol is required'}), 400
+            
+        # Append .NS automatically for Indian Market if no suffix exists
+        if market == 'IN' and not (symbol.endswith('.NS') or symbol.endswith('.BO')):
+            symbol += '.NS'
             
         print(f"Received prediction request for: {symbol}")
         
         # This mirrors the workflow expected:
         # Load Model -> Fetch Data -> Preprocess -> Predict Output -> Send Result UI
-        result = predict_stock_price(symbol.upper())
+        result = predict_stock_price(symbol)
         
         return jsonify({
             'success': True,
-            'symbol': symbol.upper(),
+            'symbol': symbol,
             'prediction': result['predicted_price'],
-            'last_price': result['last_price']
+            'last_price': result['last_price'],
+            'currency_symbol': get_currency_symbol(symbol)
         })
         
     except Exception as e:
-        print(f"Error during prediction: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        error_msg = format_error_message(str(e), symbol, market if 'market' in locals() else 'US')
+        print(f"Error during prediction: {error_msg}")
+        return jsonify({'success': False, 'error': error_msg}), 500

@@ -17,8 +17,14 @@
 
         <div class="card">
             <form id="predict-form">
+                <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                    <select id="market" style="padding: 15px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.1); outline: none; cursor: pointer; font-size: 1rem;">
+                        <option value="IN" selected style="color: black;">Indian Market (₹)</option>
+                        <option value="US" style="color: black;">US Market ($)</option>
+                    </select>
+                </div>
                 <div class="input-group">
-                    <input type="text" id="symbol" placeholder="Enter Stock Symbol (e.g., AAPL)" required autocomplete="off">
+                    <input type="text" id="symbol" placeholder="Enter Symbol (e.g., RELIANCE or AAPL)" required autocomplete="off">
                     <button type="submit" id="predict-btn">Predict</button>
                 </div>
             </form>
