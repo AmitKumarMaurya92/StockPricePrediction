@@ -14,12 +14,6 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
             Stock Price Prediction
         </div>
-        <div class="nav-links">
-            <a href="#" style="color: white; text-decoration: none;">Home</a>
-            <a href="#" style="color: inherit; text-decoration: none;">About</a>
-            <a href="#" style="color: inherit; text-decoration: none;">Contact</a>
-            <button class="nav-btn">Predict</button>
-        </div>
     </nav>
 
     <div class="hero">
@@ -27,10 +21,18 @@
         <p>Enter a stock symbol below to predict its future price!</p>
         
         <form id="predict-form">
-            <div class="market-selector-wrapper">
-                <select id="market">
+            <div class="market-selector-wrapper" style="gap: 15px;">
+                <select id="market" style="flex: 1;">
                     <option value="IN" selected>Indian Market (₹)</option>
                     <option value="US">US Market ($)</option>
+                </select>
+                <select id="interval" style="flex: 1; background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 20px; border-radius: 20px; font-family: inherit; outline: none; cursor: pointer;">
+                    <option value="1mo" style="color: black;">Monthly (1mo)</option>
+                    <option value="1wk" style="color: black;">Weekly (1wk)</option>
+                    <option value="1d" selected style="color: black;">Daily (1d)</option>
+                    <option value="1h" style="color: black;">Hourly (1h)</option>
+                    <option value="15m" style="color: black;">15 Mins (15m)</option>
+                    <option value="5m" style="color: black;">5 Mins (5m)</option>
                 </select>
             </div>
             <div class="search-box">
@@ -70,7 +72,22 @@
                     <span id="res-recommendation" style="padding: 6px 12px; border-radius: 6px; font-weight: 800; font-size: 0.9rem; letter-spacing: 1px;"></span>
                 </div>
                 
-                <div style="margin-top: 40px; opacity: 0.3;">
+                <!-- Actionable Trading Plan -->
+                <div class="action-prices" id="action-prices-div" style="margin-top: 25px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); width: max-content;">
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">Actionable Setup <span id="setup-action" style="font-weight:bold; color: white;"></span></div>
+                    <div style="display: flex; gap: 30px;">
+                        <div>
+                            <div style="color: #cbd5e1; font-size: 0.8rem;">Target Price</div>
+                            <div id="target-price" style="font-weight: 600; font-size: 1.1rem; color: #10b981;">₹ 0.00</div>
+                        </div>
+                        <div>
+                            <div style="color: #cbd5e1; font-size: 0.8rem;">Stop Loss</div>
+                            <div id="stop-loss" style="font-weight: 600; font-size: 1.1rem; color: #ef4444;">₹ 0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; opacity: 0.2;">
                     <!-- A decorative green upward swoosh vector could go here -->
                     <svg viewBox="0 0 100 50" width="100%" height="150" preserveAspectRatio="none">
                         <path d="M0,50 Q25,40 50,25 T100,0 L100,50 Z" fill="url(#greenGradient)" />

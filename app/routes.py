@@ -11,9 +11,10 @@ def index():
 @bp.route('/predict', methods=['POST'])
 def predict():
     try:
-        data = request.json
+        data = request.get_json()
         symbol = data.get('symbol', '').strip().upper()
-        market = data.get('market', 'US')
+        market = data.get('market', 'IN')
+        interval = data.get('interval', '1d')
         
         if not symbol:
             return jsonify({'success': False, 'error': 'Stock symbol is required'}), 400
@@ -26,7 +27,7 @@ def predict():
         
         # This mirrors the workflow expected:
         # Load Model -> Fetch Data -> Preprocess -> Predict Output -> Send Result UI
-        result = predict_stock_price(symbol)
+        result = predict_stock_price(symbol, interval=interval)
         
         return jsonify({
             'success': True,
@@ -42,6 +43,8 @@ def predict():
             'change': result['change'],
             'percent_change': result['percent_change'],
             'recommendation': result['recommendation'],
+            'target_price': result['target_price'],
+            'stop_loss': result['stop_loss'],
             'company_name': result['company_name'],
             'last_open': result['last_open'],
             'last_high': result['last_high'],

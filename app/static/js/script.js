@@ -5,13 +5,16 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
     
     const symbol = document.getElementById('symbol').value;
     const market = document.getElementById('market').value;
+    const interval = document.getElementById('interval').value;
     const btn = document.getElementById('predict-btn');
     const loading = document.getElementById('loading');
     const resultDiv = document.getElementById('result');
+    const placeholder = document.getElementById('placeholder');
     const errorDiv = document.getElementById('error-message');
     
     errorDiv.classList.add('hidden');
     resultDiv.classList.add('hidden');
+    if (placeholder) placeholder.classList.remove('hidden');
     
     btn.disabled = true;
     loading.classList.remove('hidden');
@@ -20,7 +23,7 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
         const response = await fetch('/predict', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symbol, market })
+            body: JSON.stringify({ symbol, market, interval })
         });
         
         const data = await response.json();
@@ -60,6 +63,11 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
                 recNode.style.color = '#fbbf24'; // Yellow
                 recNode.style.border = '1px solid rgba(251, 191, 36, 0.3)';
             }
+            
+            // Set Target and Stop Loss
+            document.getElementById('setup-action').textContent = `(${data.recommendation})`;
+            document.getElementById('target-price').textContent = `${data.currency_symbol}${data.target_price.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('stop-loss').textContent = `${data.currency_symbol}${data.stop_loss.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
             
             // Bottom stats formatting
             document.getElementById('stat-open').textContent = `${data.currency_symbol}${data.last_open.toLocaleString('en-US', {minimumFractionDigits: 2})}`;

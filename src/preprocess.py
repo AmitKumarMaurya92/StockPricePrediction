@@ -61,20 +61,19 @@ def prepare_data_for_training(df):
     return np.array(X), np.array(y)
 
 def preprocess_data_for_inference(df):
-    """Preprocess real-time data for inference matching the training pipeline."""
+    """Preprocess real-time data for inference using dynamic scaling."""
     data = get_features(df)
     
     if len(data) < TIME_STEPS:
         raise ValueError(f"Not enough data points after indicator drop. Need {TIME_STEPS}, got {len(data)}.")
         
-    if not os.path.exists(SCALER_PATH):
-        raise FileNotFoundError(f"Scaler not found at {SCALER_PATH}. Please train the model first.")
-        
-    scaler = joblib.load(SCALER_PATH)
+    # Dynamically fit the scaler to the given 6-month historical payload
+    # This correctly scales ₹3000 prices down to (0, 1) without blowing up the LSTM gradients
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(data)
     
     # We only need the last TIME_STEPS for a single prediction
-    recent_data = data[-TIME_STEPS:]
-    scaled_recent_data = scaler.transform(recent_data)
+    scaled_recent_data = scaled_data[-TIME_STEPS:]
     
     # Reshape for LSTM [samples, time steps, features]
     sequence = np.reshape(scaled_recent_data, (1, TIME_STEPS, scaled_recent_data.shape[1]))

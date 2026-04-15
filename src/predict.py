@@ -21,14 +21,25 @@ def load_model():
         
     return _model
 
-def predict_stock_price(symbol):
+def predict_stock_price(symbol, interval='1d'):
     """
-    Multivariate prediction pipeline.
+    Multivariate prediction pipeline accommodating multiple timeframe topologies.
     """
     model = load_model()
     
-    # Fetch enough history to safely calculate 26-day EMA and 60-day sequences (6 months is safe)
-    raw_data = fetch_data(symbol, period='6mo')
+    # Map valid Yahoo Finance periods for high-freq and low-freq intervals
+    if interval == '1mo' or interval == '3mo':
+        period = '10y'
+    elif interval == '1wk':
+        period = '5y'
+    elif interval == '1d':
+        period = '1y'
+    elif interval == '1h':
+        period = '1mo'
+    else: # 15m, 5m
+        period = '5d'
+        
+    raw_data = fetch_data(symbol, period=period, interval=interval)
     
     # Preprocess Data
     # sequence is (1, 60, num_features)
@@ -46,9 +57,12 @@ def predict_stock_price(symbol):
     
     predicted_val = scaler.inverse_transform(dummy_features)[0][0]
     
-    # Extract 3 months (approx 65 trading days) of historical clean data for the chart
+    # Extract historical clean data for the chart natively
     recent_history = raw_data.dropna().tail(65)
-    historical_dates = recent_history.index.strftime('%Y-%m-%d').tolist()
+    
+    # Capture Full Date and Time for Sub-Day Intervals
+    historical_dates = recent_history.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
+    
     historical_open = recent_history['Open'].tolist()
     historical_high = recent_history['High'].tolist()
     historical_low = recent_history['Low'].tolist()
@@ -59,14 +73,25 @@ def predict_stock_price(symbol):
     
     if percent_change > 0.8:
         recommendation = "STRONG BUY"
+        target_price = predicted_val
+        stop_loss = last_price * 0.98
     elif percent_change > 0.2:
         recommendation = "BUY"
+        target_price = predicted_val
+        stop_loss = last_price * 0.985
     elif percent_change < -0.8:
         recommendation = "STRONG SELL"
+        target_price = predicted_val
+        stop_loss = last_price * 1.02
     elif percent_change < -0.2:
         recommendation = "SELL"
+        target_price = predicted_val
+        stop_loss = last_price * 1.015
     else:
         recommendation = "HOLD"
+        target_price = last_price * 1.015
+        stop_loss = last_price * 0.985
+
     
     company_name = symbol
     try:
@@ -88,6 +113,8 @@ def predict_stock_price(symbol):
         "change": round(float(change), 2),
         "percent_change": round(float(percent_change), 2),
         "recommendation": recommendation,
+        "target_price": round(float(target_price), 2),
+        "stop_loss": round(float(stop_loss), 2),
         "company_name": company_name,
         "last_open": round(float(historical_open[-1]), 2),
         "last_high": round(float(historical_high[-1]), 2),
