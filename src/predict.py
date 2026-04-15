@@ -56,9 +56,8 @@ def predict_stock_price(symbol, interval='1d'):
     dummy_features[0][0] = scaled_prediction[0][0]
     
     predicted_val = scaler.inverse_transform(dummy_features)[0][0]
-    
-    # Extract historical clean data for the chart natively
-    recent_history = raw_data.dropna().tail(65)
+    # Return the entire parsed historical period (1 year natively for daily) for deeper chart context
+    recent_history = raw_data.dropna()
     
     # Capture Full Date and Time for Sub-Day Intervals
     historical_dates = recent_history.index.strftime('%Y-%m-%d %H:%M:%S').tolist()

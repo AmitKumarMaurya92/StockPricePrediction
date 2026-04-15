@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from src.predict import predict_stock_price
-from app.utils import get_currency_symbol, format_error_message
+from app.utils import get_currency_symbol, format_error_message, resolve_ticker
 
 bp = Blueprint('main', __name__)
 
@@ -12,13 +12,16 @@ def index():
 def predict():
     try:
         data = request.get_json()
-        symbol = data.get('symbol', '').strip().upper()
+        raw_symbol = data.get('symbol', '').strip().upper()
         market = data.get('market', 'IN')
         interval = data.get('interval', '1d')
         
-        if not symbol:
+        if not raw_symbol:
             return jsonify({'success': False, 'error': 'Stock symbol is required'}), 400
             
+        # Use Yahoo Finance search to automatically resolve "Google" to "GOOG"
+        symbol = resolve_ticker(raw_symbol)
+        
         # Append .NS automatically for Indian Market if no suffix exists
         if market == 'IN' and not (symbol.endswith('.NS') or symbol.endswith('.BO')):
             symbol += '.NS'

@@ -1,5 +1,29 @@
 let currentChartData = null;
 
+// Theme Toggling Logic
+const themeBtn = document.getElementById('theme-toggle');
+let isLightMode = localStorage.getItem('theme') === 'light';
+
+if (isLightMode) {
+    document.body.classList.add('light-theme');
+}
+
+themeBtn.addEventListener('click', () => {
+    isLightMode = !isLightMode;
+    if (isLightMode) {
+        document.body.classList.add('light-theme');
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.body.classList.remove('light-theme');
+        localStorage.setItem('theme', 'dark');
+    }
+    
+    // Redraw chart to update grid colors
+    if (currentChartData) {
+        renderDynamicChart(currentChartData);
+    }
+});
+
 document.getElementById('predict-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -153,20 +177,24 @@ function renderDynamicChart(data) {
         marker: { color: '#f97316', size: 10, symbol: 'star' }
     };
     
+    const isLight = document.body.classList.contains('light-theme');
+    const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+    const textColor = isLight ? '#475569' : '#94a3b8';
+
     const layout = {
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
-        font: { color: '#94a3b8', family: 'Inter' },
+        font: { color: textColor, family: 'Inter' },
         margin: { t: 20, r: 20, b: 40, l: 40 },
         xaxis: {
             showgrid: true,
-            gridcolor: 'rgba(255, 255, 255, 0.05)',
+            gridcolor: gridColor,
             rangeslider: { visible: false } // Hide ugly native rangeslider
         },
         yaxis: {
             tickprefix: data.currency_symbol,
             showgrid: true,
-            gridcolor: 'rgba(255, 255, 255, 0.05)'
+            gridcolor: gridColor
         },
         showlegend: false
     };
