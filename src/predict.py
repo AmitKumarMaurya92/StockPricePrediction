@@ -21,25 +21,28 @@ def load_model():
         
     return _model
 
-def predict_stock_price(symbol, interval='1d'):
+def predict_stock_price(symbol, interval='1d', custom_df=None):
     """
-    Multivariate prediction pipeline accommodating multiple timeframe topologies.
+    Multivariate prediction pipeline accommodating multiple timeframe topologies and custom datasets.
     """
     model = load_model()
     
-    # Map valid Yahoo Finance periods for high-freq and low-freq intervals
-    if interval == '1mo' or interval == '3mo':
-        period = '10y'
-    elif interval == '1wk':
-        period = '5y'
-    elif interval == '1d':
-        period = '1y'
-    elif interval == '1h':
-        period = '1mo'
-    else: # 15m, 5m
-        period = '5d'
-        
-    raw_data = fetch_data(symbol, period=period, interval=interval)
+    if custom_df is not None:
+        raw_data = custom_df
+    else:
+        # Map valid Yahoo Finance periods for high-freq and low-freq intervals
+        if interval == '1mo' or interval == '3mo':
+            period = '10y'
+        elif interval == '1wk':
+            period = '5y'
+        elif interval == '1d':
+            period = '1y'
+        elif interval == '1h':
+            period = '1mo'
+        else: # 15m, 5m
+            period = '5d'
+            
+        raw_data = fetch_data(symbol, period=period, interval=interval)
     
     # Preprocess Data
     # sequence is (1, 60, num_features)
@@ -93,13 +96,25 @@ def predict_stock_price(symbol, interval='1d'):
 
     
     company_name = symbol
-    try:
-        import yfinance as yf
-        # Attempt quick name fetch
-        info = yf.Ticker(symbol).info
-        company_name = info.get('shortName', symbol)
-    except:
-        pass
+    analyst_rating = "N/A"
+    analyst_count = 0
+    analyst_target = "N/A"
+    
+    if custom_df is None or symbol != "CUSTOM":
+        try:
+            import yfinance as yf
+            # Attempt quick info fetch for company name and analyst insights
+            info = yf.Ticker(symbol).info
+            company_name = info.get('shortName', symbol)
+            
+            # Analyst Insights
+            analyst_rating = info.get('recommendationKey', 'N/A').upper()
+            analyst_count = info.get('numberOfAnalystOpinions', 0)
+            if info.get('targetMeanPrice'):
+                analyst_target = round(float(info.get('targetMeanPrice')), 2)
+        except Exception as e:
+            print(f"Warning: Failed to fetch yfinance supplemental info: {e}")
+            pass
     
     return {
         "last_price": round(float(last_price), 2),
@@ -115,6 +130,9 @@ def predict_stock_price(symbol, interval='1d'):
         "target_price": round(float(target_price), 2),
         "stop_loss": round(float(stop_loss), 2),
         "company_name": company_name,
+        "analyst_rating": analyst_rating,
+        "analyst_count": analyst_count,
+        "analyst_target": analyst_target,
         "last_open": round(float(historical_open[-1]), 2),
         "last_high": round(float(historical_high[-1]), 2),
         "last_low": round(float(historical_low[-1]), 2)

@@ -33,9 +33,9 @@ def resolve_ticker(query):
         pass
     return query
 
-def get_autocomplete_suggestions(query):
+def get_autocomplete_suggestions(query, market='IN'):
     """
-    Search Yahoo Finance to return autocomplete suggestions.
+    Search Yahoo Finance to return autocomplete suggestions based on market.
     """
     try:
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={urllib.parse.quote(query)}"
@@ -47,23 +47,46 @@ def get_autocomplete_suggestions(query):
         suggestions = []
         for q in quotes:
             symbol = q.get('symbol')
+            if not symbol:
+                continue
+                
+            # Filter by market
+            if market == 'IN':
+                if not (symbol.endswith('.NS') or symbol.endswith('.BO')):
+                    continue
+            else:
+                # Exclude Indian stocks if US market is selected
+                if symbol.endswith('.NS') or symbol.endswith('.BO'):
+                    continue
+
             if q.get('quoteType') in ['EQUITY', 'ETF', 'MUTUALFUND']:
                 name = q.get('shortname') or q.get('longname') or symbol
                 exchange = q.get('exchDisp', '')
-                if symbol:
-                    suggestions.append({
-                        'symbol': symbol,
-                        'name': name,
-                        'exchange': exchange
-                    })
-        # If we didn't find specific equities, return whatever we got
+                
+                # Remove suffix for sleek display (e.g., RELIANCE.NS -> RELIANCE)
+                display_symbol = symbol.split('.')[0]
+                
+                suggestions.append({
+                    'raw_symbol': symbol,
+                    'symbol': display_symbol,
+                    'name': name,
+                    'exchange': exchange
+                })
+        
+        # Fallback if strict equities list is empty
         if not suggestions:
             for q in quotes:
                 symbol = q.get('symbol')
+                if not symbol: continue
+                # Match market
+                if market == 'IN' and not (symbol.endswith('.NS') or symbol.endswith('.BO')): continue
+                if market == 'US' and (symbol.endswith('.NS') or symbol.endswith('.BO')): continue
+                
                 name = q.get('shortname') or q.get('longname') or symbol
                 exchange = q.get('exchDisp', '')
-                if symbol:
-                    suggestions.append({'symbol': symbol, 'name': name, 'exchange': exchange})
+                display_symbol = symbol.split('.')[0]
+                
+                suggestions.append({'raw_symbol': symbol, 'symbol': display_symbol, 'name': name, 'exchange': exchange})
                     
         return suggestions[:8]
     except Exception as e:

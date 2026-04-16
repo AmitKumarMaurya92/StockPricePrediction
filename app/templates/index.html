@@ -49,6 +49,15 @@
                 <div id="autocomplete-list" class="autocomplete-items hidden"></div>
                 <button type="submit" id="predict-btn" class="predict-btn-main">Predict</button>
             </div>
+            
+            <div style="margin-top: 15px; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span>OR</span>
+                <label for="csv-upload" class="upload-btn">
+                    <svg width="16" height="16" style="vertical-align: middle; margin-right: 5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload CSV/Excel Dataset
+                </label>
+                <input type="file" id="csv-upload" accept=".csv, .xlsx, .xls" class="hidden">
+            </div>
         </form>
     </div>
 
@@ -89,6 +98,21 @@
                         <div>
                             <div style="color: #cbd5e1; font-size: 0.8rem;">Stop Loss</div>
                             <div id="stop-loss" style="font-weight: 600; font-size: 1.1rem; color: #ef4444;">₹ 0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analyst Insights -->
+                <div id="analyst-insights-div" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); width: max-content; display: none;">
+                    <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">Wall Street Analyst Consensus</div>
+                    <div style="display: flex; gap: 30px;">
+                        <div>
+                            <div style="color: #cbd5e1; font-size: 0.8rem;">Rating (Based on <span id="analyst-count">0</span> analysts)</div>
+                            <div id="analyst-rating" style="font-weight: 600; font-size: 1.1rem; color: #facc15;">N/A</div>
+                        </div>
+                        <div>
+                            <div style="color: #cbd5e1; font-size: 0.8rem;">Avg Target Price</div>
+                            <div id="analyst-target" style="font-weight: 600; font-size: 1.1rem; color: #10b981;">N/A</div>
                         </div>
                     </div>
                 </div>
