@@ -69,85 +69,23 @@
              ═══════════════════════════════════════════════════════════ -->
         <div class="dashboard-area hidden mt-4" id="result">
 
-            <!-- ── Row 1 : Ticker Identity + Fundamentals ── -->
-            <div class="row g-4">
-                <div class="col-12">
-                    <div class="info-card">
-                        <!-- Header: logo / symbol / price -->
-                        <div id="header-identity-wrapper" class="header-identity-wrapper mb-4 pb-3">
-                            <div class="ticker-brand">
-                                <div id="res-logo" class="company-logo">TCS</div>
-                                <div class="ticker-details">
-                                    <h2 id="res-symbol" class="ticker-id">TCS.NS</h2>
-                                    <div id="res-company-name" class="company-fullname">Tata Consultancy Services</div>
-                                    <a id="res-website" href="#" class="ticker-link" target="_blank">Official Website</a>
-                                </div>
-                            </div>
-                            <div id="price-display-block" class="price-display">
-                                <h2 id="res-current-price" class="price-val">₹0.00</h2>
-                                <span id="res-change" class="price-change-pill">0.00%</span>
-                            </div>
-                        </div>
-
-                        <!-- Fundamentals: 2 cols mobile → 4 cols md → 5 cols lg -->
-                        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3">
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Market Cap</span>
-                                    <span class="stat-value" id="val-market-cap">₹0 Cr.</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Stock P/E</span>
-                                    <span class="stat-value" id="val-pe">0.0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">ROCE</span>
-                                    <span class="stat-value" id="val-roce">0.0 %</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Book Value</span>
-                                    <span class="stat-value" id="val-book-value">₹0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Current Price</span>
-                                    <span class="stat-value" id="val-current-price">₹0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">High / Low</span>
-                                    <span class="stat-value" id="val-high-low">₹0 / ₹0</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">ROE</span>
-                                    <span class="stat-value" id="val-roe">0.0 %</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Div. Yield</span>
-                                    <span class="stat-value" id="val-dividend">0.0 %</span>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="stat-row">
-                                    <span class="stat-key">Face Value</span>
-                                    <span class="stat-value" id="val-face-value">N/A</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <!-- ── DELETED CARD HIDDEN DATA STORES (Prevents script.js crashes) ── -->
+            <div class="d-none">
+                <div id="res-logo"></div>
+                <h2 id="res-symbol"></h2>
+                <div id="res-company-name"></div>
+                <a id="res-website"></a>
+                <h2 id="res-current-price"></h2>
+                <span id="res-change"></span>
+                <span id="val-market-cap"></span>
+                <span id="val-pe"></span>
+                <span id="val-roce"></span>
+                <span id="val-book-value"></span>
+                <span id="val-current-price"></span>
+                <span id="val-high-low"></span>
+                <span id="val-roe"></span>
+                <span id="val-dividend"></span>
+                <span id="val-face-value"></span>
             </div>
 
             <!-- ── Row 2 : Full-width Chart ── -->
