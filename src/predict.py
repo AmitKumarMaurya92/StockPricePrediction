@@ -131,10 +131,15 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
             tkr = yf.Ticker(symbol)
             info = tkr.info
             
+            # If info comes back completely empty (which happens when Yahoo blocks the IP softly but doesn't raise exception)
+            if not info or len(info) <= 2:
+                raise ValueError("Info payload empty due to cloudflare or rate limiting")
+                
             company_name = info.get('shortName', symbol)
             
             # Analyst Insights
-            analyst_rating = info.get('recommendationKey', 'N/A').upper()
+            analyst_rating = info.get('recommendationKey', 'N/A')
+            if isinstance(analyst_rating, str): analyst_rating = analyst_rating.upper()
             analyst_count = info.get('numberOfAnalystOpinions', 0)
             if info.get('targetMeanPrice'):
                 analyst_target = round(float(info.get('targetMeanPrice')), 2)
@@ -147,19 +152,40 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
             book_value = info.get('bookValue', 'N/A')
             
             dy = info.get('dividendYield', 'N/A')
-            dividend_yield = round(dy * 100, 2) if dy != 'N/A' else 'N/A'
+            if dy and dy != 'N/A': dividend_yield = round(float(dy) * 100, 2)
             
             r_eq = info.get('returnOnEquity', 'N/A')
-            roe = round(r_eq * 100, 2) if r_eq != 'N/A' else 'N/A'
+            if r_eq and r_eq != 'N/A': roe = round(float(r_eq) * 100, 2)
             
             r_ass = info.get('returnOnAssets', 'N/A')
-            roce = round(r_ass * 100, 2) if r_ass != 'N/A' else 'N/A'
+            if r_ass and r_ass != 'N/A': roce = round(float(r_ass) * 100, 2)
             
             about_text = info.get('longBusinessSummary', 'N/A')
             website = info.get('website', '')
+            
         except Exception as e:
-            print(f"Warning: Failed to fetch yfinance supplemental info: {e}")
-            pass
+            print(f"Warning: Primary yfinance info failed ({e}). Attempting fast_info and meta fallbacks...")
+            try:
+                import yfinance as yf
+                import requests
+                
+                tkr = yf.Ticker(symbol)
+                f_info = tkr.fast_info
+                
+                market_cap = f_info.get('marketCap', 'N/A')
+                fifty_two_high = f_info.get('yearHigh', 'N/A')
+                fifty_two_low = f_info.get('yearLow', 'N/A')
+                
+                # Raw API Fallback for missing company name
+                url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}?range=1d&interval=1d"
+                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", "Accept": "*/*"}
+                res = requests.get(url, headers=headers, timeout=5)
+                if res.status_code == 200:
+                    meta = res.json().get('chart', {}).get('result', [{}])[0].get('meta', {})
+                    company_name = meta.get('shortName', meta.get('longName', symbol))
+            except Exception as inner_e:
+                print(f"Notice: Fallback also partially failed: {inner_e}")
+                pass
     
     return {
         "last_price": round(float(last_price), 2),
