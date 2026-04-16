@@ -75,7 +75,9 @@ def predict():
             'website': result.get('website', ''),
             'last_open': result['last_open'],
             'last_high': result['last_high'],
-            'last_low': result['last_low']
+            'last_low': result['last_low'],
+            'dma_50': result.get('dma_50', []),
+            'dma_200': result.get('dma_200', [])
         })
         
     except Exception as e:
@@ -197,7 +199,9 @@ def predict_file():
             'website': result.get('website', ''),
             'last_open': result['last_open'],
             'last_high': result['last_high'],
-            'last_low': result['last_low']
+            'last_low': result['last_low'],
+            'dma_50': result.get('dma_50', []),
+            'dma_200': result.get('dma_200', [])
         })
         
     except Exception as e:
