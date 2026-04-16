@@ -89,9 +89,26 @@ def predict_file():
         else:
             return jsonify({'success': False, 'error': 'Unsupported format. Use CSV or Excel.'}), 400
             
+        # Dynamic Header Discovery (For files like Screener.in with metadata at the top)
+        current_cols = [str(c).strip().lower() for c in df.columns]
+        if 'date' not in current_cols and 'datetime' not in current_cols and 'time' not in current_cols:
+            header_idx = -1
+            for i, row in df.head(30).iterrows():
+                row_vals = [str(v).strip().lower() for v in row.values]
+                if 'date' in row_vals or 'datetime' in row_vals or 'time' in row_vals:
+                    header_idx = i
+                    break
+            if header_idx != -1:
+                df.columns = df.iloc[header_idx]
+                df = df.iloc[header_idx + 1:].reset_index(drop=True)
+                
         # Normalize column names (e.g. 'date' -> 'Date', 'close' -> 'Close')
         df.columns = [str(c).strip().title() for c in df.columns]
         
+        # Alias 'Price' to 'Close' for typical flat exports
+        if 'Price' in df.columns and 'Close' not in df.columns:
+            df.rename(columns={'Price': 'Close'}, inplace=True)
+            
         # Parse Dates
         if 'Date' in df.columns:
             df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -106,14 +123,21 @@ def predict_file():
             df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
             df.set_index('Timestamp', inplace=True)
         else:
-            # Maybe the user's CSV didn't have a header, or it's formatted weirdly.
-            return jsonify({'success': False, 'error': 'Dataset must contain a "Date", "Datetime", or "Time" column.'}), 400
+            return jsonify({'success': False, 'error': 'Dataset must contain a "Date", "Datetime", or "Time" column. Found: ' + str(list(df.columns))}), 400
             
-        required_cols = ['Open', 'High', 'Low', 'Close']
-        for col in required_cols:
-            if col not in df.columns:
-                return jsonify({'success': False, 'error': f'Missing required column: {col}. Found columns: {list(df.columns)}'}), 400
+        # Ensure minimum columns safely
+        if 'Close' not in df.columns:
+            return jsonify({'success': False, 'error': f'Missing primary Price/Close column. Found: {list(df.columns)}'}), 400
+            
+        # Auto-fill missing chart columns to prevent crashing
+        if 'Open' not in df.columns: df['Open'] = df['Close']
+        if 'High' not in df.columns: df['High'] = df['Close']
+        if 'Low' not in df.columns: df['Low'] = df['Close']
                 
+        # Handle numeric conversion for the values securely
+        for col in ['Open', 'High', 'Low', 'Close']:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+            
         # Drop rows where index (Date) is NaT (Not a Time)
         df = df[df.index.notnull()]
         
