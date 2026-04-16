@@ -369,7 +369,7 @@ function renderDynamicChart(data) {
             y: close,
             type: 'bar',
             name: 'Close Price',
-            marker: { color: '#818cf8', opacity: 0.8 }
+            marker: { color: '#4f46e5', opacity: 1.0 } // Changed to stark dark indigo with 100% opacity for clear distinction from volume
         };
     }
 
@@ -386,11 +386,15 @@ function renderDynamicChart(data) {
     const isLight = document.body.classList.contains('light-theme');
     const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)';
     const textColor = isLight ? '#475569' : '#94a3b8';
-
+    
     // The volume trace overlay mapped to a secondary Y-axis (y2)
+    // Map volume to thousands (k) form explicitly per user request
+    const volumeInK = volume ? volume.map(v => v / 1000) : [];
+    const maxVolumeInK = Math.max(...(volumeInK.length ? volumeInK : [0]));
+    
     const traceVolume = {
         x: dates,
-        y: volume || [],
+        y: volumeInK,
         type: 'bar',
         name: 'Volume',
         yaxis: 'y2',
@@ -402,7 +406,8 @@ function renderDynamicChart(data) {
         plot_bgcolor: 'transparent',
         font: { color: textColor, family: 'Inter' },
         margin: { t: 20, r: 60, b: 40, l: 60 },
-        bargap: 0.05, // Make volume bars thicker and clearer
+        bargap: 0.05, 
+        barmode: 'group', // Ensures native plot overlay mapping behaves correctly for multi-bars
         xaxis: {
             showgrid: true,
             gridcolor: gridColor,
@@ -421,8 +426,10 @@ function renderDynamicChart(data) {
             showgrid: false,
             domain: [0, 1], // Full chart height for volume (creates overlap)
             overlaying: 'y', // Overlays exactly on top of yaxis
-            range: [0, Math.max(...(data.historical_volume || [0])) * 3.5], // Cap volume bars dynamically to bottom 30%
+            range: [0, maxVolumeInK * 1.8], // Cap volume bars dynamically to bottom ~55% (increased from 30%)
             tickfont: { size: 10, color: textColor },
+            ticksuffix: 'k',
+            tickformat: ',', // Add commas for readable numbers e.g. 50,000k
             side: 'left' 
         },
         showlegend: false
@@ -462,4 +469,16 @@ document.querySelectorAll('.interval-btn[data-period]').forEach(btn => {
             renderDynamicChart(currentChartData);
         }
     });
+});
+
+document.getElementById('toggle-price').addEventListener('change', function(e) {
+    // trace1 is index 1, trace2 (prediction dot) is index 2. Let's toggle both based on checkbox.
+    const update = { visible: e.target.checked ? true : 'legendonly' };
+    Plotly.restyle('chart-container', update, [1, 2]);
+});
+
+document.getElementById('toggle-volume').addEventListener('change', function(e) {
+    // traceVolume is index 0
+    const update = { visible: e.target.checked ? true : 'legendonly' };
+    Plotly.restyle('chart-container', update, [0]);
 });
