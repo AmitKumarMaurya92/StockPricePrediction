@@ -1,5 +1,74 @@
 let currentChartData = null;
 
+// Autocomplete logic
+const symbolInput = document.getElementById('symbol');
+const autocompleteList = document.getElementById('autocomplete-list');
+let debounceTimeout;
+
+symbolInput.addEventListener('input', function() {
+    clearTimeout(debounceTimeout);
+    const query = this.value;
+    
+    if (!query) {
+        autocompleteList.classList.add('hidden');
+        autocompleteList.innerHTML = '';
+        return;
+    }
+    
+    // Check if user has probably already selected an NSE/BO ticker
+    if (query.includes('.NS') || query.includes('.BO')) {
+        autocompleteList.classList.add('hidden');
+        return;
+    }
+    
+    debounceTimeout = setTimeout(async () => {
+        try {
+            const res = await fetch(`/suggest?q=${encodeURIComponent(query)}`);
+            const suggestions = await res.json();
+            
+            autocompleteList.innerHTML = '';
+            if (suggestions.length > 0) {
+                suggestions.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    
+                    const symbolSpan = document.createElement('span');
+                    symbolSpan.className = 'ac-symbol';
+                    symbolSpan.textContent = item.symbol;
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'ac-name';
+                    nameSpan.textContent = item.name + (item.exchange ? ` (${item.exchange})` : '');
+                    
+                    div.appendChild(symbolSpan);
+                    div.appendChild(nameSpan);
+                    
+                    div.addEventListener('click', () => {
+                        symbolInput.value = item.symbol;
+                        autocompleteList.classList.add('hidden');
+                        autocompleteList.innerHTML = '';
+                        document.getElementById('predict-btn').focus();
+                    });
+                    
+                    autocompleteList.appendChild(div);
+                });
+                autocompleteList.classList.remove('hidden');
+            } else {
+                autocompleteList.classList.add('hidden');
+            }
+        } catch (e) {
+            console.error('Error fetching suggestions:', e);
+        }
+    }, 300);
+});
+
+// Hide autocomplete when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target !== symbolInput && !autocompleteList.contains(e.target)) {
+        autocompleteList.classList.add('hidden');
+    }
+});
+
 // Theme Toggling Logic
 const themeBtn = document.getElementById('theme-toggle');
 let isLightMode = localStorage.getItem('theme') === 'light';

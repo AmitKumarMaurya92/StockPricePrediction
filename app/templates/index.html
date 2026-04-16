@@ -40,12 +40,13 @@
                     <option value="5m">5 Mins (5m)</option>
                 </select>
             </div>
-            <div class="search-box">
+            <div class="search-box" style="position: relative;">
                 <div class="search-input-wrapper">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <input type="text" id="symbol" placeholder="Enter Stock Symbol (e.g. TCS.NS)" autocomplete="off">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </div>
+                <div id="autocomplete-list" class="autocomplete-items hidden"></div>
                 <button type="submit" id="predict-btn" class="predict-btn-main">Predict</button>
             </div>
         </form>

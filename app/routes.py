@@ -1,12 +1,20 @@
 from flask import Blueprint, render_template, request, jsonify
 from src.predict import predict_stock_price
-from app.utils import get_currency_symbol, format_error_message, resolve_ticker
+from app.utils import get_currency_symbol, format_error_message, resolve_ticker, get_autocomplete_suggestions
 
 bp = Blueprint('main', __name__)
 
 @bp.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
+@bp.route('/suggest', methods=['GET'])
+def suggest():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify([])
+    suggestions = get_autocomplete_suggestions(query)
+    return jsonify(suggestions)
 
 @bp.route('/predict', methods=['POST'])
 def predict():
