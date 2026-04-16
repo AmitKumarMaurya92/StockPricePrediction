@@ -256,6 +256,22 @@ function handleSuccessResponse(data, resultDiv) {
     
     document.getElementById('res-about-text').textContent = data.about_text !== 'N/A' ? data.about_text : 'Detailed company information or long business summary is fully unavailable directly from the Yahoo Finance payload for this ticker instance.';
     
+    // Evaluate 'Read More' visibility
+    const aboutContainer = document.getElementById('about-container');
+    const readMoreBtn = document.getElementById('read-more-btn');
+    
+    // Reset state cleanly for new predictions
+    aboutContainer.classList.add('clamped');
+    readMoreBtn.textContent = 'READ MORE >';
+    readMoreBtn.classList.add('hidden');
+    
+    setTimeout(() => {
+        // Evaluate if actual text overflows the clamped clientHeight
+        if (aboutContainer.scrollHeight > aboutContainer.clientHeight) {
+            readMoreBtn.classList.remove('hidden');
+        }
+    }, 50);
+    
     // Cache the data and draw chart
     currentChartData = data;
     renderDynamicChart(data);
@@ -371,3 +387,17 @@ function renderDynamicChart(data) {
     const config = { responsive: true, displayModeBar: false };
     Plotly.newPlot('chart-container', [traceVolume, trace1, trace2], layout, config);
 }
+
+// Toggle Read More
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'read-more-btn') {
+        const container = document.getElementById('about-container');
+        if (container.classList.contains('clamped')) {
+            container.classList.remove('clamped');
+            e.target.textContent = 'READ LESS <';
+        } else {
+            container.classList.add('clamped');
+            e.target.textContent = 'READ MORE >';
+        }
+    }
+});
