@@ -33,15 +33,15 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     else:
         # Map valid Yahoo Finance periods for high-freq and low-freq intervals
         if interval == '1mo' or interval == '3mo':
-            period = '10y'
+            period = 'max'
         elif interval == '1wk':
-            period = '5y'
+            period = '10y'
         elif interval == '1d':
-            period = '1y'
+            period = '10y'
         elif interval == '1h':
-            period = '1mo'
+            period = '730d'
         else: # 15m, 5m
-            period = '1mo'
+            period = '60d'
             
         raw_data = fetch_data(symbol, period=period, interval=interval)
     

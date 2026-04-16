@@ -287,8 +287,52 @@ document.getElementById('chart-type').addEventListener('change', () => {
 });
 
 function renderDynamicChart(data) {
-    const dates = data.historical_dates;
+    let dates = data.historical_dates;
+    let open = data.historical_open;
+    let high = data.historical_high;
+    let low = data.historical_low;
+    let close = data.historical_close;
+    let volume = data.historical_volume;
     const chartType = document.getElementById('chart-type').value;
+    
+    // Filter by Timeframe organically locally
+    if (dates.length > 0) {
+        const lastDate = new Date(dates[dates.length - 1]);
+        const cutoffDate = new Date(lastDate);
+        
+        if (typeof selectedTimeframe !== 'undefined') {
+            if (selectedTimeframe === '1D') {
+                cutoffDate.setDate(cutoffDate.getDate() - 1);
+            } else if (selectedTimeframe === '1W') {
+                cutoffDate.setDate(cutoffDate.getDate() - 7);
+            } else if (selectedTimeframe === '1M') {
+                cutoffDate.setMonth(cutoffDate.getMonth() - 1);
+            } else if (selectedTimeframe === '6M') {
+                cutoffDate.setMonth(cutoffDate.getMonth() - 6);
+            } else if (selectedTimeframe === '1Y') {
+                cutoffDate.setFullYear(cutoffDate.getFullYear() - 1);
+            } else if (selectedTimeframe === '5Y') {
+                cutoffDate.setFullYear(cutoffDate.getFullYear() - 5);
+            } else {
+                cutoffDate.setFullYear(1900); // MAX
+            }
+            
+            let startIndex = 0;
+            for (let i = 0; i < dates.length; i++) {
+                if (new Date(dates[i]) >= cutoffDate) {
+                    startIndex = i;
+                    break;
+                }
+            }
+            
+            dates = dates.slice(startIndex);
+            open = open.slice(startIndex);
+            high = high.slice(startIndex);
+            low = low.slice(startIndex);
+            close = close.slice(startIndex);
+            if (volume) volume = volume.slice(startIndex);
+        }
+    }
     
     // Calculate the predicted next date for overlay
     const lastDate = new Date(dates[dates.length - 1]);
@@ -301,10 +345,10 @@ function renderDynamicChart(data) {
     if (chartType === 'candlestick') {
         trace1 = {
             x: dates,
-            open: data.historical_open,
-            high: data.historical_high,
-            low: data.historical_low,
-            close: data.historical_close,
+            open: open,
+            high: high,
+            low: low,
+            close: close,
             type: 'candlestick',
             name: data.symbol,
             increasing: { line: { color: '#10b981' } }, // Green
@@ -313,7 +357,7 @@ function renderDynamicChart(data) {
     } else if (chartType === 'line') {
         trace1 = {
             x: dates,
-            y: data.historical_close,
+            y: close,
             type: 'scatter',
             mode: 'lines',
             name: 'Close Price',
@@ -322,7 +366,7 @@ function renderDynamicChart(data) {
     } else if (chartType === 'bar') {
         trace1 = {
             x: dates,
-            y: data.historical_close,
+            y: close,
             type: 'bar',
             name: 'Close Price',
             marker: { color: '#818cf8', opacity: 0.8 }
@@ -346,7 +390,7 @@ function renderDynamicChart(data) {
     // The volume trace overlay mapped to a secondary Y-axis (y2)
     const traceVolume = {
         x: dates,
-        y: data.historical_volume || [],
+        y: volume || [],
         type: 'bar',
         name: 'Volume',
         yaxis: 'y2',
@@ -400,4 +444,22 @@ document.addEventListener('click', function(e) {
             e.target.textContent = 'READ MORE >';
         }
     }
+});
+
+let selectedTimeframe = '1Y';
+
+document.querySelectorAll('.interval-btn[data-period]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Update styling visually
+        document.querySelectorAll('.interval-btn[data-period]').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Mutate the global filter state
+        selectedTimeframe = e.target.getAttribute('data-period');
+        
+        // Instant visual update without reloading from API
+        if (currentChartData) {
+            renderDynamicChart(currentChartData);
+        }
+    });
 });

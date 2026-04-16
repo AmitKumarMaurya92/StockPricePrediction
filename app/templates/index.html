@@ -176,12 +176,14 @@
         <!-- BOTTOM CARD: Chart -->
         <div class="chart-card" id="bottom-chart-card">
             <div class="chart-header">
-                <div style="display: flex; gap: 10px; opacity: 0.5; pointer-events: none;">
-                    <button class="interval-btn">1M</button>
-                    <button class="interval-btn">6M</button>
-                    <button class="interval-btn active">1Yr</button>
-                    <button class="interval-btn">5Yr</button>
-                    <button class="interval-btn">Max</button>
+                <div id="timeframe-buttons" style="display: flex; gap: 10px;">
+                    <button class="interval-btn" data-period="1D">1D</button>
+                    <button class="interval-btn" data-period="1W">1W</button>
+                    <button class="interval-btn" data-period="1M">1M</button>
+                    <button class="interval-btn" data-period="6M">6M</button>
+                    <button class="interval-btn active" data-period="1Y">1Yr</button>
+                    <button class="interval-btn" data-period="5Y">5Yr</button>
+                    <button class="interval-btn" data-period="MAX">Max</button>
                 </div>
                 
                 <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
