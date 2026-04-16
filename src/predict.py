@@ -5,30 +5,46 @@ from src.data_loader import fetch_data
 from src.preprocess import preprocess_data_for_inference
 import functools
 
+import concurrent.futures
+
 @functools.lru_cache(maxsize=50)
 def get_ticker_info(symbol):
     import yfinance as yf
-    return yf.Ticker(symbol).info
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(lambda s: yf.Ticker(s).info, symbol)
+        try:
+            return future.result(timeout=4)
+        except concurrent.futures.TimeoutError:
+            raise TimeoutError("yfinance .info timed out")
 
 @functools.lru_cache(maxsize=50)
 def get_ticker_fast_info(symbol):
     import yfinance as yf
-    return yf.Ticker(symbol).fast_info
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(lambda s: yf.Ticker(s).fast_info, symbol)
+        try:
+            return future.result(timeout=4)
+        except concurrent.futures.TimeoutError:
+            raise TimeoutError("yfinance .fast_info timed out")
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'lstm_model.h5')
+_model = None
 
-if not os.path.exists(MODEL_PATH):
-    raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Please run train_model.py first.")
-    
-print(f"Loading TensorFlow model from: {MODEL_PATH}")
-from tensorflow.keras.models import load_model as keras_load_model
-_model = keras_load_model(MODEL_PATH, compile=False)
+def get_model():
+    global _model
+    if _model is None:
+        if not os.path.exists(MODEL_PATH):
+            raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Please run train_model.py first.")
+        print(f"Lazy-loading TensorFlow model from: {MODEL_PATH}")
+        from tensorflow.keras.models import load_model as keras_load_model
+        _model = keras_load_model(MODEL_PATH, compile=False)
+    return _model
 
 def predict_stock_price(symbol, interval='1d', custom_df=None):
     """
     Multivariate prediction pipeline accommodating multiple timeframe topologies and custom datasets.
     """
-    model = _model
+    model = get_model()
     
     if custom_df is not None:
         raw_data = custom_df

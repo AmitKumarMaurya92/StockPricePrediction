@@ -11,8 +11,12 @@ def fetch_data(symbol, period='3mo', interval='1d'):
     print(f"Fetching data for {symbol} at {interval} interval over {period} period...")
     
     try:
+        import concurrent.futures
         stock = yf.Ticker(symbol)
-        data = stock.history(period=period, interval=interval)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(lambda: stock.history(period=period, interval=interval))
+            data = future.result(timeout=5)
+            
         if not data.empty:
             return data
     except Exception as e:
