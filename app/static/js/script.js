@@ -183,10 +183,21 @@ document.getElementById('csv-upload').addEventListener('change', async (e) => {
 
 function handleSuccessResponse(data, resultDiv) {
     // Update UI blocks
-    document.getElementById('res-symbol').textContent = `${data.symbol} - ${data.company_name}`;
+    document.getElementById('res-symbol').textContent = data.symbol;
     document.getElementById('res-logo').textContent = data.symbol.substring(0, 3).toUpperCase();
     
-    // Format Predicted Price
+    const webBtn = document.getElementById('res-website');
+    if (data.website && data.website !== '') {
+        webBtn.href = data.website;
+        webBtn.style.display = 'inline-block';
+    } else {
+        webBtn.style.display = 'none';
+    }
+    
+    // Top header current price maps to the actual current 'last_price'
+    document.getElementById('res-current-price').textContent = `${data.currency_symbol}${data.last_price.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    
+    // AI Forecast box maps to the internal next-day prediction
     document.getElementById('res-predicted-price').textContent = `${data.currency_symbol}${data.prediction.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     
     // Format Change UI text
@@ -199,44 +210,51 @@ function handleSuccessResponse(data, resultDiv) {
     changeNode.textContent = changeStr;
     changeNode.className = isPositive ? 'price-change text-green' : 'price-change text-red';
     
-    // Set Trading Recommendation Signal
+    // Set Trading Recommendation Signal internally to the sidebar
     const recNode = document.getElementById('res-recommendation');
-    recNode.textContent = data.recommendation;
+    recNode.textContent = data.recommendation + " SIGNAL";
     
     if (data.recommendation.includes('BUY')) {
-        recNode.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
         recNode.style.color = '#10b981';
-        recNode.style.border = '1px solid rgba(16, 185, 129, 0.3)';
     } else if (data.recommendation.includes('SELL')) {
-        recNode.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
         recNode.style.color = '#ef4444';
-        recNode.style.border = '1px solid rgba(239, 68, 68, 0.3)';
     } else {
-        recNode.style.backgroundColor = 'rgba(251, 191, 36, 0.2)';
         recNode.style.color = '#fbbf24'; // Yellow
-        recNode.style.border = '1px solid rgba(251, 191, 36, 0.3)';
     }
     
-    // Set Target and Stop Loss
-    document.getElementById('setup-action').textContent = `(${data.recommendation})`;
+    // Set Target and Stop Loss inside the Sidebar AI panel
     document.getElementById('target-price').textContent = `${data.currency_symbol}${data.target_price.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     document.getElementById('stop-loss').textContent = `${data.currency_symbol}${data.stop_loss.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     
-    // Analyst Insights
-    const analystDiv = document.getElementById('analyst-insights-div');
-    if (data.analyst_rating && data.analyst_rating !== 'N/A') {
-        analystDiv.style.display = 'block';
-        document.getElementById('analyst-rating').textContent = data.analyst_rating;
-        document.getElementById('analyst-count').textContent = data.analyst_count || 0;
-        document.getElementById('analyst-target').textContent = data.analyst_target !== 'N/A' ? `${data.currency_symbol}${data.analyst_target}` : 'N/A';
-    } else {
-        analystDiv.style.display = 'none';
-    }
+    // --- POPULATE FUNDAMENTALS GRID SECTION --- 
+    const formatFund = (val, prefix='', suffix='') => (val !== 'N/A' && val !== null && !isNaN(val)) ? `${prefix}${val}${suffix}` : 'N/A';
     
-    // Bottom stats formatting
-    document.getElementById('stat-open').textContent = `${data.currency_symbol}${data.last_open.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-    document.getElementById('stat-high').textContent = `${data.currency_symbol}${data.last_high.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-    document.getElementById('stat-low').textContent = `${data.currency_symbol}${data.last_low.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    // Market Cap formatting
+    let mcap = data.market_cap;
+    if (mcap !== 'N/A' && typeof mcap === 'number') {
+        if (mcap >= 1e12) mcap = (mcap / 1e12).toFixed(2) + ' Trillion';
+        else if (mcap >= 1e9) mcap = (mcap / 1e9).toFixed(2) + ' Billion';
+        else if (mcap >= 1e6) mcap = (mcap / 1e6).toFixed(2) + ' Million';
+        else mcap = mcap.toLocaleString();
+    }
+    document.getElementById('val-market-cap').textContent = (mcap === 'N/A' || !mcap) ? 'N/A' : `${data.currency_symbol}${mcap}`;
+    
+    document.getElementById('val-pe').textContent = formatFund(data.stock_pe);
+    document.getElementById('val-roce').textContent = formatFund(data.roce, '', '%');
+    
+    document.getElementById('val-current-price').textContent = `${data.currency_symbol}${data.last_price.toLocaleString()}`;
+    document.getElementById('val-book-value').textContent = formatFund(data.book_value, data.currency_symbol);
+    document.getElementById('val-roe').textContent = formatFund(data.roe, '', '%');
+    
+    const hlFormat = (data.fifty_two_high !== 'N/A' && data.fifty_two_low !== 'N/A') 
+        ? `${data.currency_symbol}${data.fifty_two_high.toLocaleString()} / ${data.currency_symbol}${data.fifty_two_low.toLocaleString()}` 
+        : 'N/A';
+    document.getElementById('val-high-low').textContent = hlFormat;
+    
+    document.getElementById('val-dividend').textContent = formatFund(data.dividend_yield, '', '%');
+    document.getElementById('val-face-value').textContent = 'N/A';
+    
+    document.getElementById('res-about-text').textContent = data.about_text !== 'N/A' ? data.about_text : 'Detailed company information or long business summary is fully unavailable directly from the Yahoo Finance payload for this ticker instance.';
     
     // Cache the data and draw chart
     currentChartData = data;
@@ -282,10 +300,8 @@ function renderDynamicChart(data) {
             y: data.historical_close,
             type: 'scatter',
             mode: 'lines',
-            fill: 'tozeroy', // Creates an aesthetic area chart
-            fillcolor: 'rgba(56, 189, 248, 0.1)',
             name: 'Close Price',
-            line: { color: '#38bdf8', width: 3 }
+            line: { color: '#6366f1', width: 2.5 } // Vibrant Indigo Line
         };
     } else if (chartType === 'bar') {
         trace1 = {
@@ -311,24 +327,47 @@ function renderDynamicChart(data) {
     const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.05)';
     const textColor = isLight ? '#475569' : '#94a3b8';
 
+    // The volume trace overlay mapped to a secondary Y-axis (y2)
+    const traceVolume = {
+        x: dates,
+        y: data.historical_volume || [],
+        type: 'bar',
+        name: 'Volume',
+        yaxis: 'y2',
+        marker: { color: isLight ? 'rgba(147, 197, 253, 0.8)' : 'rgba(96, 165, 250, 0.6)' } // Solid light blue bars matching reference
+    };
+
     const layout = {
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent',
         font: { color: textColor, family: 'Inter' },
-        margin: { t: 20, r: 20, b: 40, l: 40 },
+        margin: { t: 20, r: 60, b: 40, l: 60 },
+        bargap: 0.05, // Make volume bars thicker and clearer
         xaxis: {
             showgrid: true,
             gridcolor: gridColor,
-            rangeslider: { visible: false } // Hide ugly native rangeslider
+            rangeslider: { visible: false } 
         },
         yaxis: {
+            title: { text: `Price on Exchange (${data.currency_symbol})`, font: { size: 10 } },
             tickprefix: data.currency_symbol,
             showgrid: true,
-            gridcolor: gridColor
+            gridcolor: gridColor,
+            domain: [0, 1], // Full chart height for price
+            side: 'right' 
+        },
+        yaxis2: {
+            title: { text: 'Volume', font: { size: 10 } },
+            showgrid: false,
+            domain: [0, 1], // Full chart height for volume (creates overlap)
+            overlaying: 'y', // Overlays exactly on top of yaxis
+            range: [0, Math.max(...(data.historical_volume || [0])) * 3.5], // Cap volume bars dynamically to bottom 30%
+            tickfont: { size: 10, color: textColor },
+            side: 'left' 
         },
         showlegend: false
     };
 
     const config = { responsive: true, displayModeBar: false };
-    Plotly.newPlot('chart-container', [trace1, trace2], layout, config);
+    Plotly.newPlot('chart-container', [traceVolume, trace1, trace2], layout, config);
 }

@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 from src.data_loader import fetch_data
 from src.preprocess import preprocess_data_for_inference
 
@@ -40,7 +41,7 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         elif interval == '1h':
             period = '1mo'
         else: # 15m, 5m
-            period = '5d'
+            period = '1mo'
             
         raw_data = fetch_data(symbol, period=period, interval=interval)
     
@@ -69,6 +70,7 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     historical_high = recent_history['High'].tolist()
     historical_low = recent_history['Low'].tolist()
     historical_close = recent_history['Close'].tolist()
+    historical_volume = recent_history.get('Volume', pd.Series([0]*len(recent_history))).tolist()
     
     change = predicted_val - last_price
     percent_change = (change / last_price) * 100
@@ -100,6 +102,18 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     analyst_count = 0
     analyst_target = "N/A"
     
+    # Fundamental Stats for UI
+    market_cap = "N/A"
+    fifty_two_high = "N/A"
+    fifty_two_low = "N/A"
+    stock_pe = "N/A"
+    book_value = "N/A"
+    dividend_yield = "N/A"
+    roe = "N/A"
+    roce = "N/A"
+    about_text = "N/A"
+    website = ""
+    
     if custom_df is None or symbol != "CUSTOM":
         try:
             import yfinance as yf
@@ -112,6 +126,25 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
             analyst_count = info.get('numberOfAnalystOpinions', 0)
             if info.get('targetMeanPrice'):
                 analyst_target = round(float(info.get('targetMeanPrice')), 2)
+                
+            # Fundamental Data
+            market_cap = info.get('marketCap', 'N/A')
+            fifty_two_high = info.get('fiftyTwoWeekHigh', 'N/A')
+            fifty_two_low = info.get('fiftyTwoWeekLow', 'N/A')
+            stock_pe = info.get('trailingPE', info.get('forwardPE', 'N/A'))
+            book_value = info.get('bookValue', 'N/A')
+            
+            dy = info.get('dividendYield', 'N/A')
+            dividend_yield = round(dy * 100, 2) if dy != 'N/A' else 'N/A'
+            
+            r_eq = info.get('returnOnEquity', 'N/A')
+            roe = round(r_eq * 100, 2) if r_eq != 'N/A' else 'N/A'
+            
+            r_ass = info.get('returnOnAssets', 'N/A')
+            roce = round(r_ass * 100, 2) if r_ass != 'N/A' else 'N/A'
+            
+            about_text = info.get('longBusinessSummary', 'N/A')
+            website = info.get('website', '')
         except Exception as e:
             print(f"Warning: Failed to fetch yfinance supplemental info: {e}")
             pass
@@ -124,6 +157,7 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         "historical_high": historical_high,
         "historical_low": historical_low,
         "historical_close": historical_close,
+        "historical_volume": historical_volume,
         "change": round(float(change), 2),
         "percent_change": round(float(percent_change), 2),
         "recommendation": recommendation,
@@ -133,6 +167,16 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         "analyst_rating": analyst_rating,
         "analyst_count": analyst_count,
         "analyst_target": analyst_target,
+        "market_cap": market_cap,
+        "fifty_two_high": fifty_two_high,
+        "fifty_two_low": fifty_two_low,
+        "stock_pe": stock_pe,
+        "book_value": book_value,
+        "dividend_yield": dividend_yield,
+        "roe": roe,
+        "roce": roce,
+        "about_text": about_text,
+        "website": website,
         "last_open": round(float(historical_open[-1]), 2),
         "last_high": round(float(historical_high[-1]), 2),
         "last_low": round(float(historical_low[-1]), 2)

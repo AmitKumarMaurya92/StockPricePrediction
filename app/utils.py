@@ -16,7 +16,7 @@ def format_error_message(error_msg, symbol, market):
 import requests
 import urllib.parse
 
-def resolve_ticker(query):
+def resolve_ticker(query, market='IN'):
     """
     Search Yahoo Finance to resolve a company name (e.g. 'Google') into its proper ticker (e.g. 'GOOG').
     If nothing is found, return the original query.
@@ -27,6 +27,17 @@ def resolve_ticker(query):
         res = requests.get(url, headers=headers, timeout=3)
         data = res.json()
         quotes = data.get('quotes', [])
+        
+        # Try to find a ticker that matches the requested market first
+        for q in quotes:
+            symbol = q.get('symbol')
+            if not symbol: continue
+            
+            if market == 'IN' and (symbol.endswith('.NS') or symbol.endswith('.BO')):
+                return symbol
+            elif market != 'IN' and not (symbol.endswith('.NS') or symbol.endswith('.BO')):
+                return symbol
+
         if quotes and len(quotes) > 0:
             return quotes[0].get('symbol', query)
     except:

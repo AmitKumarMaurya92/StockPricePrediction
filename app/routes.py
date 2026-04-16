@@ -30,7 +30,7 @@ def predict():
             return jsonify({'success': False, 'error': 'Stock symbol is required'}), 400
             
         # Use Yahoo Finance search to automatically resolve "Google" to "GOOG"
-        symbol = resolve_ticker(raw_symbol)
+        symbol = resolve_ticker(raw_symbol, market)
         
         # Append .NS automatically for Indian Market if no suffix exists
         if market == 'IN' and not (symbol.endswith('.NS') or symbol.endswith('.BO')):
@@ -53,6 +53,7 @@ def predict():
             'historical_high': result['historical_high'],
             'historical_low': result['historical_low'],
             'historical_close': result['historical_close'],
+            'historical_volume': result.get('historical_volume', []),
             'change': result['change'],
             'percent_change': result['percent_change'],
             'recommendation': result['recommendation'],
@@ -62,6 +63,16 @@ def predict():
             'analyst_rating': result['analyst_rating'],
             'analyst_count': result['analyst_count'],
             'analyst_target': result['analyst_target'],
+            'market_cap': result.get('market_cap', 'N/A'),
+            'fifty_two_high': result.get('fifty_two_high', 'N/A'),
+            'fifty_two_low': result.get('fifty_two_low', 'N/A'),
+            'stock_pe': result.get('stock_pe', 'N/A'),
+            'book_value': result.get('book_value', 'N/A'),
+            'dividend_yield': result.get('dividend_yield', 'N/A'),
+            'roe': result.get('roe', 'N/A'),
+            'roce': result.get('roce', 'N/A'),
+            'about_text': result.get('about_text', 'N/A'),
+            'website': result.get('website', ''),
             'last_open': result['last_open'],
             'last_high': result['last_high'],
             'last_low': result['last_low']
@@ -164,6 +175,7 @@ def predict_file():
             'historical_high': result['historical_high'],
             'historical_low': result['historical_low'],
             'historical_close': result['historical_close'],
+            'historical_volume': result.get('historical_volume', []),
             'change': result['change'],
             'percent_change': result['percent_change'],
             'recommendation': result['recommendation'],
@@ -173,6 +185,16 @@ def predict_file():
             'analyst_rating': result['analyst_rating'],
             'analyst_count': result['analyst_count'],
             'analyst_target': result['analyst_target'],
+            'market_cap': result.get('market_cap', 'N/A'),
+            'fifty_two_high': result.get('fifty_two_high', 'N/A'),
+            'fifty_two_low': result.get('fifty_two_low', 'N/A'),
+            'stock_pe': result.get('stock_pe', 'N/A'),
+            'book_value': result.get('book_value', 'N/A'),
+            'dividend_yield': result.get('dividend_yield', 'N/A'),
+            'roe': result.get('roe', 'N/A'),
+            'roce': result.get('roce', 'N/A'),
+            'about_text': result.get('about_text', 'N/A'),
+            'website': result.get('website', ''),
             'last_open': result['last_open'],
             'last_high': result['last_high'],
             'last_low': result['last_low']
