@@ -3,30 +3,32 @@ import numpy as np
 import pandas as pd
 from src.data_loader import fetch_data
 from src.preprocess import preprocess_data_for_inference
+import functools
+
+@functools.lru_cache(maxsize=50)
+def get_ticker_info(symbol):
+    import yfinance as yf
+    return yf.Ticker(symbol).info
+
+@functools.lru_cache(maxsize=50)
+def get_ticker_fast_info(symbol):
+    import yfinance as yf
+    return yf.Ticker(symbol).fast_info
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'lstm_model.h5')
 
-_model = None
-
-def load_model():
-    """Load the trained LSTM model (singleton pattern caching)."""
-    global _model
-    if _model is None:
-        if not os.path.exists(MODEL_PATH):
-            raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Please run train_model.py first.")
-            
-        print(f"Loading TensorFlow model from: {MODEL_PATH}")
-        from tensorflow.keras.models import load_model as keras_load_model
-        # Sometimes Keras complains about compile state on loaded models used only for inference
-        _model = keras_load_model(MODEL_PATH, compile=False)
-        
-    return _model
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"Model not found at {MODEL_PATH}. Please run train_model.py first.")
+    
+print(f"Loading TensorFlow model from: {MODEL_PATH}")
+from tensorflow.keras.models import load_model as keras_load_model
+_model = keras_load_model(MODEL_PATH, compile=False)
 
 def predict_stock_price(symbol, interval='1d', custom_df=None):
     """
     Multivariate prediction pipeline accommodating multiple timeframe topologies and custom datasets.
     """
-    model = load_model()
+    model = _model
     
     if custom_df is not None:
         raw_data = custom_df
@@ -125,11 +127,8 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     
     if custom_df is None or symbol != "CUSTOM":
         try:
-            import yfinance as yf
-            
             # Attempt quick info fetch for company name and analyst insights
-            tkr = yf.Ticker(symbol)
-            info = tkr.info
+            info = get_ticker_info(symbol)
             
             # If info comes back completely empty (which happens when Yahoo blocks the IP softly but doesn't raise exception)
             if not info or len(info) <= 2:
@@ -166,11 +165,9 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         except Exception as e:
             print(f"Warning: Primary yfinance info failed ({e}). Attempting fast_info and meta fallbacks...")
             try:
-                import yfinance as yf
                 import requests
                 
-                tkr = yf.Ticker(symbol)
-                f_info = tkr.fast_info
+                f_info = get_ticker_fast_info(symbol)
                 
                 market_cap = f_info.get('marketCap', 'N/A')
                 fifty_two_high = f_info.get('yearHigh', 'N/A')

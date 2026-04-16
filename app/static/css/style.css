@@ -223,8 +223,7 @@ nav {
 .dashboard-area {
     width: 100%;
     max-width: 1440px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin: 50px auto;
 }
 
 .info-card,
@@ -608,3 +607,228 @@ nav {
     width: 100%;
     min-height: 400px;
 }
+
+/* ── Screener Style Card Additions ── */
+.screener-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: clamp(15px, 4vw, 30px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(20px);
+}
+
+.light-theme .screener-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.screener-header {
+    border-bottom: 1px solid var(--divider-color);
+    padding-bottom: 20px;
+}
+
+.screener-title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.screener-title {
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.screener-links {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.screener-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s;
+    background: rgba(59, 130, 246, 0.1);
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.light-theme .screener-link {
+    color: #4f46e5;
+    background: rgba(79, 70, 229, 0.08);
+}
+
+.screener-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.screener-price-group h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.screener-change {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.screener-grid-box {
+    margin-top: 15px;
+}
+
+.screener-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    list-style: none;
+    gap: 8px 20px;
+}
+
+@media (max-width: 900px) {
+    .screener-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .screener-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.screener-grid li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 6px;
+}
+
+.screener-grid li .name {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.screener-grid li .value {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.screener-grid li.row-alt {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.light-theme .screener-grid li.row-alt {
+    background: #f8fafc;
+}
+
+.screener-ratio-addon {
+    border-top: 1px dashed var(--divider-color);
+}
+
+.screener-input {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--input-text);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.screener-edit-btn {
+    background: transparent;
+    border: none;
+    color: #6366f1;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+}
+
+.screener-edit-btn:hover {
+    opacity: 0.8;
+}
+
+/* ── Chart Tabs UI ── */
+.chart-tab-group {
+    border-radius: 6px;
+}
+.chart-tabs {
+    background: transparent;
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.chart-tab {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--input-border);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.chart-tab:last-child {
+    border-right: none;
+}
+.chart-tab:hover {
+    background: var(--input-bg);
+    color: var(--text-primary);
+}
+.chart-tab.active {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    font-weight: 600;
+}
+.light-theme .chart-tab.active {
+    background: rgba(79, 70, 229, 0.08);
+    color: #4f46e5;
+}
+.pe-tab {
+    color: #8b5cf6 !important;
+}
+.pe-tab.active {
+    background: rgba(139, 92, 246, 0.1) !important;
+    font-weight: 700;
+}
+.color-box {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+.custom-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+.alerts-btn {
+    border: 1px solid var(--input-border) !important;
+    color: #6366f1 !important;
+    background: transparent !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    font-weight: 600 !important;
+}
+.alerts-btn:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+}

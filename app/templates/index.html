@@ -69,23 +69,55 @@
              ═══════════════════════════════════════════════════════════ -->
         <div class="dashboard-area hidden mt-4" id="result">
 
-            <!-- ── DELETED CARD HIDDEN DATA STORES (Prevents script.js crashes) ── -->
+            <!-- ── SCREENER STYLE FUNDAMENTALS CARD ── -->
+            <div class="row g-4 mb-3 mt-1">
+                <div class="col-12">
+                    <div class="screener-card">
+                        <!-- Header -->
+                        <div class="screener-header d-flex flex-wrap justify-content-between align-items-baseline mb-4">
+                            <div class="screener-title-group">
+                                <h1 class="screener-title m-0" id="res-company-name">...</h1>
+                                <div class="screener-links mt-2 d-flex gap-3 flex-wrap">
+                                    <a href="#" id="res-website" target="_blank" class="screener-link">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                        <span id="res-url-text">Website</span>
+                                    </a>
+                                    <span class="screener-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> BSE: <span id="res-bse">000000</span></span>
+                                    <span class="screener-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> NSE: <span id="res-symbol">...</span></span>
+                                </div>
+                            </div>
+                            <div class="screener-price-group text-end mt-3 mt-sm-0">
+                                <div class="d-flex align-items-center gap-2 justify-content-sm-end">
+                                    <h2 class="screener-price m-0" id="res-current-price">₹0.00</h2>
+                                    <span id="res-change" class="screener-change text-red">-0.00%</span>
+                                </div>
+                                <div class="screener-price-subtext mt-1 opacity-50 small">Close Price</div>
+                            </div>
+                        </div>
+
+                        <!-- Grid -->
+                        <div class="screener-grid-box">
+                            <ul class="screener-grid m-0 p-0">
+                                <li><span class="name">Market Cap</span><span class="value" id="val-market-cap">₹ 0</span></li>
+                                <li><span class="name">Current Price</span><span class="value" id="val-current-price">₹ 0</span></li>
+                                <li><span class="name">High / Low</span><span class="value" id="val-high-low">₹ 0 / 0</span></li>
+                                
+                                <li class="row-alt"><span class="name">Stock P/E</span><span class="value" id="val-pe">0</span></li>
+                                <li class="row-alt"><span class="name">Book Value</span><span class="value" id="val-book-value">₹ 0</span></li>
+                                <li class="row-alt"><span class="name">Dividend Yield</span><span class="value" id="val-dividend">0 %</span></li>
+                                
+                                <li><span class="name">ROCE</span><span class="value" id="val-roce">0 %</span></li>
+                                <li><span class="name">ROE</span><span class="value" id="val-roe">0 %</span></li>
+                                <li><span class="name">Face Value</span><span class="value" id="val-face-value">₹ 1.00</span></li>
+                            </ul>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="d-none">
                 <div id="res-logo"></div>
-                <h2 id="res-symbol"></h2>
-                <div id="res-company-name"></div>
-                <a id="res-website"></a>
-                <h2 id="res-current-price"></h2>
-                <span id="res-change"></span>
-                <span id="val-market-cap"></span>
-                <span id="val-pe"></span>
-                <span id="val-roce"></span>
-                <span id="val-book-value"></span>
-                <span id="val-current-price"></span>
-                <span id="val-high-low"></span>
-                <span id="val-roe"></span>
-                <span id="val-dividend"></span>
-                <span id="val-face-value"></span>
             </div>
 
             <!-- ── Row 2 : Full-width Chart ── -->
@@ -94,28 +126,49 @@
                     <div class="chart-card">
                         <div class="chart-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
                             <div id="timeframe-buttons">
-                                <button id="btn-1d"  class="interval-btn" data-period="1D">1D</button>
-                                <button id="btn-1w"  class="interval-btn" data-period="1W">1W</button>
                                 <button id="btn-1m"  class="interval-btn" data-period="1M">1M</button>
                                 <button id="btn-6m"  class="interval-btn" data-period="6M">6M</button>
-                                <button id="btn-1y"  class="interval-btn active" data-period="1Y">1Y</button>
-                                <button id="btn-5y"  class="interval-btn" data-period="5Y">5Y</button>
-                                <button id="btn-max" class="interval-btn" data-period="MAX">MAX</button>
+                                <button id="btn-1y"  class="interval-btn active" data-period="1Y">1Yr</button>
+                                <button id="btn-3y"  class="interval-btn" data-period="3Y">3Yr</button>
                             </div>
-                            <select id="chart-type" class="form-select form-select-sm" style="width: auto;">
-                                <option value="line" selected>Line Chart</option>
-                                <option value="candlestick">Candlestick</option>
-                                <option value="bar">Bar Chart</option>
-                            </select>
+                            <div class="chart-tab-group d-flex align-items-center gap-2">
+                                <div class="chart-tabs d-flex">
+                                    <button class="chart-tab active" data-tab="price">Price</button>
+                                    <button class="chart-tab pe-tab" data-tab="pe">PE Ratio</button>
+                                    <button class="chart-tab" data-tab="sales">Sales & Margin</button>
+                                    <div class="dropdown">
+                                        <button class="chart-tab dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-left:none;">More</button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#" data-tab="ev-ebitda">EV / EBITDA</a></li>
+                                            <li><a class="dropdown-item" href="#" data-tab="pb">Price to Book</a></li>
+                                            <li><a class="dropdown-item" href="#" data-tab="ms">Market Cap / Sales</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-primary btn-sm ms-2 d-flex align-items-center gap-1 alerts-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                    Alerts
+                                </button>
+                            </div>
                         </div>
 
                         <div id="chart-container"></div>
 
-                        <div class="chart-footer d-flex flex-wrap justify-content-center gap-3 mt-3">
-                            <label><input type="checkbox" id="toggle-price"   checked> Price</label>
-                            <label><input type="checkbox" id="toggle-dma50"   checked> 50 DMA</label>
-                            <label><input type="checkbox" id="toggle-dma200"  checked> 200 DMA</label>
-                            <label><input type="checkbox" id="toggle-volume"  checked> Volume</label>
+                        <div class="chart-footer mt-4" id="dynamic-chart-footer">
+                            <div id="footer-price" class="d-flex flex-wrap justify-content-center gap-3">
+                                <label><input type="checkbox" id="toggle-price"   checked> Price</label>
+                                <label><input type="checkbox" id="toggle-dma50"   checked> 50 DMA</label>
+                                <label><input type="checkbox" id="toggle-dma200"  checked> 200 DMA</label>
+                                <label><input type="checkbox" id="toggle-volume"  checked> Volume</label>
+                            </div>
+                            <div id="footer-pe" class="d-flex flex-wrap justify-content-center gap-4 hidden">
+                                <label class="custom-checkbox-label"><input type="checkbox" id="toggle-pe" checked> <span class="color-box" style="background:#6366f1;"></span> PE</label>
+                                <label class="custom-checkbox-label"><input type="checkbox" id="toggle-median-pe" checked> <span class="color-box" style="background:#9ca3af;"></span> Median PE = <span id="median-pe-val">0.0</span></label>
+                                <label class="custom-checkbox-label"><input type="checkbox" id="toggle-eps" checked> <span class="color-box" style="background:#93c5fd;"></span> TTM EPS</label>
+                            </div>
+                            <div id="footer-other" class="d-flex flex-wrap justify-content-center gap-3 hidden">
+                                <span class="small opacity-50">Advanced modeling for this metric is coming soon.</span>
+                            </div>
                         </div>
                     </div>
                 </div>

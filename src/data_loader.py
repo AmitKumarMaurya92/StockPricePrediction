@@ -1,7 +1,9 @@
 import yfinance as yf
 import pandas as pd
 import requests
+import functools
 
+@functools.lru_cache(maxsize=50)
 def fetch_data(symbol, period='3mo', interval='1d'):
     """
     Fetch historical stock data using Yahoo Finance with a robust generic fallback.
