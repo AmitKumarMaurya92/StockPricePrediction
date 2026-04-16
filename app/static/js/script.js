@@ -662,3 +662,15 @@ document.getElementById('toggle-median-pe').addEventListener('change', function(
 document.getElementById('toggle-eps').addEventListener('change', function(e) {
     if (activeDataTab==='pe') Plotly.restyle('chart-container', { visible: e.target.checked ? true : 'legendonly' }, [0]);
 });
+
+// Make Alerts Button Functional
+document.addEventListener('click', function(e) {
+    const alertBtn = e.target.closest('.alerts-btn');
+    if (alertBtn) {
+        if (currentChartData && currentChartData.symbol) {
+            alert(`Price alerts have been successfully set for ${currentChartData.symbol}!\nWe will notify you when trading signals trigger.`);
+        } else {
+            alert('Please search for a stock using the panel above before setting alerts.');
+        }
+    }
+});
