@@ -126,19 +126,9 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     if custom_df is None or symbol != "CUSTOM":
         try:
             import yfinance as yf
-            import requests
-            
-            # Setup a custom session to bypass basic cloud IP blocking (e.g. on Render)
-            session = requests.Session()
-            session.headers.update({
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "*/*",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive"
-            })
             
             # Attempt quick info fetch for company name and analyst insights
-            tkr = yf.Ticker(symbol, session=session)
+            tkr = yf.Ticker(symbol)
             info = tkr.info
             
             company_name = info.get('shortName', symbol)

@@ -16,6 +16,13 @@ def format_error_message(error_msg, symbol, market):
 import requests
 import urllib.parse
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive"
+}
+
 def resolve_ticker(query, market='IN'):
     """
     Search Yahoo Finance to resolve a company name (e.g. 'Google') into its proper ticker (e.g. 'GOOG').
@@ -23,8 +30,7 @@ def resolve_ticker(query, market='IN'):
     """
     try:
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={urllib.parse.quote(query)}"
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        res = requests.get(url, headers=headers, timeout=3)
+        res = requests.get(url, headers=HEADERS, timeout=3)
         data = res.json()
         quotes = data.get('quotes', [])
         
@@ -50,8 +56,7 @@ def get_autocomplete_suggestions(query, market='IN'):
     """
     try:
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={urllib.parse.quote(query)}"
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        res = requests.get(url, headers=headers, timeout=3)
+        res = requests.get(url, headers=HEADERS, timeout=3)
         data = res.json()
         quotes = data.get('quotes', [])
         
