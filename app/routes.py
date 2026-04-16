@@ -89,21 +89,34 @@ def predict_file():
         else:
             return jsonify({'success': False, 'error': 'Unsupported format. Use CSV or Excel.'}), 400
             
+        # Normalize column names (e.g. 'date' -> 'Date', 'close' -> 'Close')
+        df.columns = [str(c).strip().title() for c in df.columns]
+        
         # Parse Dates
         if 'Date' in df.columns:
-            df['Date'] = pd.to_datetime(df['Date'])
+            df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
             df.set_index('Date', inplace=True)
         elif 'Datetime' in df.columns:
-            df['Datetime'] = pd.to_datetime(df['Datetime'])
+            df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
             df.set_index('Datetime', inplace=True)
+        elif 'Time' in df.columns:
+            df['Time'] = pd.to_datetime(df['Time'], errors='coerce')
+            df.set_index('Time', inplace=True)
+        elif 'Timestamp' in df.columns:
+            df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
+            df.set_index('Timestamp', inplace=True)
         else:
-            return jsonify({'success': False, 'error': 'Dataset must contain a "Date" column.'}), 400
+            # Maybe the user's CSV didn't have a header, or it's formatted weirdly.
+            return jsonify({'success': False, 'error': 'Dataset must contain a "Date", "Datetime", or "Time" column.'}), 400
             
         required_cols = ['Open', 'High', 'Low', 'Close']
         for col in required_cols:
             if col not in df.columns:
-                return jsonify({'success': False, 'error': f'Missing required column: {col}'}), 400
+                return jsonify({'success': False, 'error': f'Missing required column: {col}. Found columns: {list(df.columns)}'}), 400
                 
+        # Drop rows where index (Date) is NaT (Not a Time)
+        df = df[df.index.notnull()]
+        
         df.ffill(inplace=True)
         df.dropna(inplace=True)
         
