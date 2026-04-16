@@ -293,6 +293,8 @@ function renderDynamicChart(data) {
     let low = data.historical_low;
     let close = data.historical_close;
     let volume = data.historical_volume;
+    let dma50 = data.dma_50;
+    let dma200 = data.dma_200;
     const chartType = document.getElementById('chart-type').value;
     
     // Filter by Timeframe organically locally
@@ -331,6 +333,8 @@ function renderDynamicChart(data) {
             low = low.slice(startIndex);
             close = close.slice(startIndex);
             if (volume) volume = volume.slice(startIndex);
+            if (dma50) dma50 = dma50.slice(startIndex);
+            if (dma200) dma200 = dma200.slice(startIndex);
         }
     }
     
@@ -381,6 +385,26 @@ function renderDynamicChart(data) {
         mode: 'markers+lines',
         name: 'Forecast Output',
         marker: { color: '#f97316', size: 10, symbol: 'star' }
+    };
+    
+    // 50-Day Moving Average
+    const traceDMA50 = {
+        x: dates,
+        y: dma50 ? dma50.map(v => v === 'N/A' ? null : v) : [],
+        type: 'scatter',
+        mode: 'lines',
+        name: '50 DMA',
+        line: { color: '#f59e0b', width: 1.5 } // Orange line
+    };
+
+    // 200-Day Moving Average
+    const traceDMA200 = {
+        x: dates,
+        y: dma200 ? dma200.map(v => v === 'N/A' ? null : v) : [],
+        type: 'scatter',
+        mode: 'lines',
+        name: '200 DMA',
+        line: { color: '#64748b', width: 1.5 } // Slate line
     };
     
     const isLight = document.body.classList.contains('light-theme');
@@ -436,7 +460,18 @@ function renderDynamicChart(data) {
     };
 
     const config = { responsive: true, displayModeBar: false };
-    Plotly.newPlot('chart-container', [traceVolume, trace1, trace2], layout, config);
+    Plotly.newPlot('chart-container', [traceVolume, traceDMA50, traceDMA200, trace1, trace2], layout, config);
+    
+    // Resync Checkboxes state internally upon fresh redraws so traces accurately represent box states.
+    const showPrice = document.getElementById('toggle-price').checked;
+    const showDMA50 = document.getElementById('toggle-dma50').checked;
+    const showDMA200 = document.getElementById('toggle-dma200').checked;
+    const showVol = document.getElementById('toggle-volume').checked;
+    
+    Plotly.restyle('chart-container', {visible: showVol ? true : 'legendonly'}, [0]);
+    Plotly.restyle('chart-container', {visible: showDMA50 ? true : 'legendonly'}, [1]);
+    Plotly.restyle('chart-container', {visible: showDMA200 ? true : 'legendonly'}, [2]);
+    Plotly.restyle('chart-container', {visible: showPrice ? true : 'legendonly'}, [3, 4]);
 }
 
 // Toggle Read More
@@ -472,13 +507,21 @@ document.querySelectorAll('.interval-btn[data-period]').forEach(btn => {
 });
 
 document.getElementById('toggle-price').addEventListener('change', function(e) {
-    // trace1 is index 1, trace2 (prediction dot) is index 2. Let's toggle both based on checkbox.
     const update = { visible: e.target.checked ? true : 'legendonly' };
-    Plotly.restyle('chart-container', update, [1, 2]);
+    Plotly.restyle('chart-container', update, [3, 4]);
+});
+
+document.getElementById('toggle-dma50').addEventListener('change', function(e) {
+    const update = { visible: e.target.checked ? true : 'legendonly' };
+    Plotly.restyle('chart-container', update, [1]);
+});
+
+document.getElementById('toggle-dma200').addEventListener('change', function(e) {
+    const update = { visible: e.target.checked ? true : 'legendonly' };
+    Plotly.restyle('chart-container', update, [2]);
 });
 
 document.getElementById('toggle-volume').addEventListener('change', function(e) {
-    // traceVolume is index 0
     const update = { visible: e.target.checked ? true : 'legendonly' };
     Plotly.restyle('chart-container', update, [0]);
 });

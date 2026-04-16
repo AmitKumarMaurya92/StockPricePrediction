@@ -63,6 +63,10 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     # Return the entire parsed historical period (1 year natively for daily) for deeper chart context
     recent_history = raw_data.dropna()
     
+    # Calculate Moving Averages (DMAs)
+    recent_history['DMA50'] = recent_history['Close'].rolling(window=50, min_periods=1).mean()
+    recent_history['DMA200'] = recent_history['Close'].rolling(window=200, min_periods=1).mean()
+    
     # Capture Full Date and Time for Sub-Day Intervals
     historical_dates = recent_history.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
     
@@ -71,6 +75,9 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
     historical_low = recent_history['Low'].tolist()
     historical_close = recent_history['Close'].tolist()
     historical_volume = recent_history.get('Volume', pd.Series([0]*len(recent_history))).tolist()
+    
+    dma_50 = recent_history['DMA50'].round(2).fillna('N/A').tolist()
+    dma_200 = recent_history['DMA200'].round(2).fillna('N/A').tolist()
     
     change = predicted_val - last_price
     percent_change = (change / last_price) * 100
@@ -158,6 +165,8 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         "historical_low": historical_low,
         "historical_close": historical_close,
         "historical_volume": historical_volume,
+        "dma_50": dma_50,
+        "dma_200": dma_200,
         "change": round(float(change), 2),
         "percent_change": round(float(percent_change), 2),
         "recommendation": recommendation,
