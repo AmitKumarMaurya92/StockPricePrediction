@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, make_response
+import traceback
 import pandas as pd
 from src.predict import predict_stock_price
 from app.utils import get_currency_symbol, format_error_message, resolve_ticker, get_autocomplete_suggestions
@@ -44,8 +45,6 @@ def predict():
             
         print(f"Received prediction request for: {symbol}")
         
-        # This mirrors the workflow expected:
-        # Load Model -> Fetch Data -> Preprocess -> Predict Output -> Send Result UI
         result = predict_stock_price(symbol, interval=interval)
         
         return jsonify({
@@ -87,8 +86,9 @@ def predict():
         })
         
     except Exception as e:
-        error_msg = format_error_message(str(e), symbol, market if 'market' in locals() else 'US')
-        print(f"Error during prediction: {error_msg}")
+        tb = traceback.format_exc()
+        print(f"[ERROR] Prediction failed for '{symbol}':\n{tb}")
+        error_msg = format_error_message(str(e), symbol, market)
         return jsonify({'success': False, 'error': error_msg}), 500
 
 @bp.route('/predict_file', methods=['POST'])
