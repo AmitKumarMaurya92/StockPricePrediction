@@ -68,12 +68,27 @@ git clone https://github.com/AmitKumarMaurya92/StockPricePrediction.git
 cd StockPricePrediction
 ```
 
-2️⃣ **Install Dependencies**
+2️⃣ **Create a Virtual Environment (Optional but Recommended)**
+```bash
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On Linux/MacOS:
+source .venv/bin/activate
+```
+
+3️⃣ **Install Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-3️⃣ **Run the Project**
+4️⃣ **Train the Model**
+You must train the machine learning model before running the application. This will fetch historical data, process it, and save the model to the `model/` directory.
+```bash
+python -m src.train_model
+```
+
+5️⃣ **Run the Project**
 ```bash
 python run.py
 ```

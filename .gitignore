@@ -25,9 +25,9 @@ venv/
 ENV/
 
 # Model Files
-*.h5
-*.hdf5
-*.keras
+# *.h5 (Commented out to push the trained model to GitHub for Render)
+# *.hdf5
+# *.keras
 
 # Environment Variables
 .env
