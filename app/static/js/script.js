@@ -200,6 +200,10 @@ function handleSuccessResponse(data, resultDiv) {
     document.getElementById('res-symbol').textContent = data.symbol;
     document.getElementById('res-logo').textContent = data.symbol.substring(0, 3).toUpperCase();
     
+    // Set the full company name under the ticker symbol
+    const nameEl = document.getElementById('res-company-name');
+    if (nameEl) nameEl.textContent = data.company_name || '';
+    
     const webBtn = document.getElementById('res-website');
     if (data.website && data.website !== '') {
         webBtn.href = data.website;
@@ -224,21 +228,30 @@ function handleSuccessResponse(data, resultDiv) {
     changeNode.textContent = changeStr;
     changeNode.className = isPositive ? 'price-change text-green' : 'price-change text-red';
     
-    // Set Trading Recommendation Signal internally to the sidebar
-    const recNode = document.getElementById('res-recommendation');
-    recNode.textContent = data.recommendation + " SIGNAL";
-    
-    if (data.recommendation.includes('BUY')) {
-        recNode.style.color = '#10b981';
-    } else if (data.recommendation.includes('SELL')) {
-        recNode.style.color = '#ef4444';
-    } else {
-        recNode.style.color = '#fbbf24'; // Yellow
-    }
-    
     // Set Target and Stop Loss inside the Sidebar AI panel
     document.getElementById('target-price').textContent = `${data.currency_symbol}${data.target_price.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
     document.getElementById('stop-loss').textContent = `${data.currency_symbol}${data.stop_loss.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    
+    // --- AI INTEL HUD SIGNAL UPDATES --- 
+    const hudNode = document.getElementById('ai-intel-hud');
+    const recPill = document.getElementById('res-recommendation-pill');
+    
+    recPill.textContent = data.recommendation + " SIGNAL";
+    
+    // Reset classes
+    hudNode.classList.remove('hud-buy', 'hud-sell', 'hud-hold');
+    recPill.classList.remove('badge-buy', 'badge-sell', 'badge-hold');
+    
+    if (data.recommendation.includes('BUY')) {
+        hudNode.classList.add('hud-buy');
+        recPill.classList.add('badge-buy');
+    } else if (data.recommendation.includes('SELL')) {
+        hudNode.classList.add('hud-sell');
+        recPill.classList.add('badge-sell');
+    } else {
+        hudNode.classList.add('hud-hold');
+        recPill.classList.add('badge-hold');
+    }
     
     // --- POPULATE FUNDAMENTALS GRID SECTION --- 
     const formatFund = (val, prefix='', suffix='') => (val !== 'N/A' && val !== null && !isNaN(val)) ? `${prefix}${val}${suffix}` : 'N/A';

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, make_response
 import pandas as pd
 from src.predict import predict_stock_price
 from app.utils import get_currency_symbol, format_error_message, resolve_ticker, get_autocomplete_suggestions
@@ -8,6 +8,10 @@ bp = Blueprint('main', __name__)
 @bp.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
+
+@bp.route('/favicon.ico')
+def favicon():
+    return make_response('', 204)
 
 @bp.route('/suggest', methods=['GET'])
 def suggest():
