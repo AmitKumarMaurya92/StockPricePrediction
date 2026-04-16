@@ -101,7 +101,7 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
     
     const symbol = document.getElementById('symbol').value;
     const market = document.getElementById('market').value;
-    const interval = document.getElementById('interval').value;
+    const interval = '1d'; // Default interval
     const btn = document.getElementById('predict-btn');
     const loading = document.getElementById('loading');
     const resultDiv = document.getElementById('result');

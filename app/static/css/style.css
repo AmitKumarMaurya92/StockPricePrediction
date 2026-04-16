@@ -173,7 +173,7 @@ nav {
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
-#market, #interval, #chart-type {
+#market, #chart-type {
     background: var(--input-bg);
     color: var(--input-text);
     border: 1px solid var(--input-border);
@@ -183,7 +183,7 @@ nav {
     outline: none;
     cursor: pointer;
 }
-#market option, #interval option, #chart-type option { color: black; }
+#market option, #chart-type option { color: black; }
 
 .dashboard-area {
     width: 100%;
