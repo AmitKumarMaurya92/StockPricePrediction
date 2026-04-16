@@ -122,6 +122,13 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
             body: JSON.stringify({ symbol, market, interval })
         });
         
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorJson;
+            try { errorJson = JSON.parse(errorText); } catch(e) {}
+            throw new Error(errorJson?.error || `Server error (${response.status}): ${errorText.substring(0, 100)}`);
+        }
+        
         const data = await response.json();
         
         if (data.success) {
@@ -164,6 +171,13 @@ document.getElementById('csv-upload').addEventListener('change', async (e) => {
             method: 'POST',
             body: formData
         });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorJson;
+            try { errorJson = JSON.parse(errorText); } catch(e) {}
+            throw new Error(errorJson?.error || `Server error (${response.status}): ${errorText.substring(0, 100)}`);
+        }
         
         const data = await response.json();
         if (data.success) {

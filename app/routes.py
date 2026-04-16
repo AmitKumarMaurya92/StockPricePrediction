@@ -20,6 +20,8 @@ def suggest():
 
 @bp.route('/predict', methods=['POST'])
 def predict():
+    symbol = "UNKNOWN"
+    market = "IN"
     try:
         data = request.get_json()
         raw_symbol = data.get('symbol', '').strip().upper()
@@ -87,6 +89,8 @@ def predict():
 
 @bp.route('/predict_file', methods=['POST'])
 def predict_file():
+    symbol = "FILE"
+    market = "US"
     try:
         if 'file' not in request.files:
             return jsonify({'success': False, 'error': 'No file uploaded'}), 400
