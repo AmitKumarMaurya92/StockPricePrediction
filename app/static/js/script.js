@@ -274,9 +274,11 @@ function handleSuccessResponse(data, resultDiv) {
     
     // Cache the data and draw chart
     currentChartData = data;
-    renderDynamicChart(data);
     
+    // Reveal the container BEFORE rendering so Plotly can detect full width
     resultDiv.classList.remove('hidden');
+    
+    renderDynamicChart(data);
 }
 
 // Re-render chart freely when user dynamically switches the dropdown
@@ -461,6 +463,7 @@ function renderDynamicChart(data) {
 
     const config = { responsive: true, displayModeBar: false };
     Plotly.newPlot('chart-container', [traceVolume, traceDMA50, traceDMA200, trace1, trace2], layout, config);
+    Plotly.Plots.resize('chart-container');
     
     // Resync Checkboxes state internally upon fresh redraws so traces accurately represent box states.
     const showPrice = document.getElementById('toggle-price').checked;
