@@ -9,13 +9,15 @@ This project focuses on predicting stock prices using historical data such as Op
 Stock prediction systems typically rely on models like regression, LSTM, or other time-series techniques to capture market trends and patterns.
 
 ## 🎯 Features
-- 📊 Historical stock data analysis
-- 📈 Data visualization (charts & graphs)
-- 🤖 Machine Learning-based prediction
-- 🔮 Future price forecasting
-- 🧹 Data preprocessing & cleaning
-- 📉 Model evaluation (accuracy metrics)
-- 🌐 Simple and interactive UI 
+- **🤖 AI-Powered Neural Forecasting**: Multivariate LSTM model trained on OHLCV data providing next-day predictive projections.
+- **🚥 Actionable Trading Signals**: AI Intelligence HUD computing automated "Strong Buy", "Buy", "Hold", and "Sell" signals alongside intelligently calculated Stop-Loss & Target Profit metrics.
+- **📈 Advanced Interactive Charting**: Professional-grade, high-performance Plotly charts with real-time toggleable overlays for 50 DMA, 200 DMA, and Volume histograms.
+- **📅 Multi-Interval Timeframes**: Analyze stock structures across diverse historical snapshots (1M, 6M, 1Yr, 3Yr).
+- **📂 Custom Dataset Validation**: Flexibility to upload proprietary, offline `.csv` or `.xlsx` datasets to bypass live APIs and run custom offline predictions.
+- **🔎 Live Search & Autocomplete**: Intuitive ticker lookup seamlessly bridging between Indian Market (NSE/BSE) and US Market stock identifiers.
+- **📊 Fundamental Deep-Dive**: Screener-style dashboard displaying Key Statistics such as P/E Ratios, Trailing Twelve Month (TTM) EPS, ROCE, ROE, Dividend Yield, and Market Cap.
+- **🎨 Glassmorphism & Theme Toggling**: Premium, aesthetic modern interface adapting beautifully between custom Dark and Light modes.
+- **☁️ Robust Cloud Data Polling**: Hardened backend deployment architecture designed to bypass standard rate limiting via fallback mechanisms and execution timeouts.
 
 ## 🛠️ Technologies Used
 
@@ -110,11 +112,11 @@ python run.py
 - Seamless visual comparison between actual vs predicted values via interactive Candlesticks.
 
 ## 🔥 Future Improvements
-- [ ] Add real-time stock data integration
+- [x] Add real-time stock data integration
+- [x] Deploy as a full-stack web app
 - [ ] Improve accuracy using advanced models (Transformer, GRU)
-- [ ] Deploy as a full-stack web app
-- [ ] Add user authentication & dashboard
-- [ ] Integrate news sentiment analysis
+- [ ] Implement user portfolio tracking & authentication
+- [ ] Integrate deep real-time news sentiment analysis
 
 ## 🤝 Contributing
 
