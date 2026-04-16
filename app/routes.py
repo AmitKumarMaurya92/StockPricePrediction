@@ -91,6 +91,11 @@ def predict_file():
             
         # Dynamic Header Discovery (For files like Screener.in with metadata at the top)
         current_cols = [str(c).strip().lower() for c in df.columns]
+        
+        # Explicit check for Screener financial sheets
+        if 'screener.in' in current_cols or any('screener' in str(c).lower() for c in current_cols):
+            return jsonify({'success': False, 'error': 'Screener.in Financial/Fundamental Excel sheets are currently not supported. This AI requires Technical Daily Price Data (OHLC) downloaded from Yahoo Finance or NSE.'}), 400
+            
         if 'date' not in current_cols and 'datetime' not in current_cols and 'time' not in current_cols:
             header_idx = -1
             for i, row in df.head(30).iterrows():
