@@ -37,7 +37,9 @@ def predict_stock_price(symbol, interval='1d', custom_df=None):
         elif interval == '1wk':
             period = '10y'
         elif interval == '1d':
-            period = '10y'
+            # Use 2y instead of 10y for daily data to significantly speed up fetch and analysis
+            # 2 years is sufficient for LSTM sequence (60 days) and DMA indicators (200 days)
+            period = '2y'
         elif interval == '1h':
             period = '730d'
         else: # 15m, 5m
