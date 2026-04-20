@@ -1,4 +1,7 @@
 let currentChartData = null;
+let activeDataTab = 'price';
+let activeChartType = 'line';
+let selectedTimeframe = '1Y';
 
 // Autocomplete logic
 const symbolInput = document.getElementById('symbol');
@@ -321,7 +324,19 @@ function handleSuccessResponse(data, resultDiv) {
     renderDynamicChart(data);
 }
 
-let activeDataTab = 'price';
+
+// Chart Type Toggling Logic
+document.querySelectorAll('#chart-type-selector .chart-tab').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const type = e.target.getAttribute('data-type');
+        document.querySelectorAll('#chart-type-selector .chart-tab').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        activeChartType = type;
+        if (currentChartData) {
+            renderDynamicChart(currentChartData);
+        }
+    });
+});
 
 // Re-render chart freely when user dynamically switches the tabs
 document.querySelectorAll('.chart-tab[data-tab], .dropdown-item[data-tab]').forEach(btn => {
@@ -348,10 +363,13 @@ document.querySelectorAll('.chart-tab[data-tab], .dropdown-item[data-tab]').forE
         
         if (activeDataTab === 'price') {
             document.getElementById('footer-price').classList.remove('hidden');
+            document.getElementById('chart-type-selector').classList.remove('hidden');
         } else if (activeDataTab === 'pe') {
             document.getElementById('footer-pe').classList.remove('hidden');
+            document.getElementById('chart-type-selector').classList.add('hidden');
         } else {
             document.getElementById('footer-other').classList.remove('hidden');
+            document.getElementById('chart-type-selector').classList.add('hidden');
         }
         
         if (currentChartData) {
@@ -421,14 +439,31 @@ function renderDynamicChart(data) {
     let layout = {};
 
     if (activeDataTab === 'price') {
-        const tracePrice = {
-            x: dates,
-            y: close,
-            type: 'scatter',
-            mode: 'lines',
-            name: 'Close Price',
-            line: { color: '#6366f1', width: 2.5 }
-        };
+        if (activeChartType === 'candle') {
+            const traceCandle = {
+                x: dates,
+                open: open,
+                high: high,
+                low: low,
+                close: close,
+                type: 'candlestick',
+                name: 'Price OHLC',
+                increasing: { line: { color: '#10b981', width: 1.5 } },
+                decreasing: { line: { color: '#ef4444', width: 1.5 } },
+                yaxis: 'y'
+            };
+            chartTraces.push(traceCandle);
+        } else {
+            const tracePrice = {
+                x: dates,
+                y: close,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Close Price',
+                line: { color: '#6366f1', width: 2.5 }
+            };
+            chartTraces.push(tracePrice);
+        }
         
         const tracePrediction = {
             x: [predictedDateStr],
@@ -438,6 +473,7 @@ function renderDynamicChart(data) {
             name: 'Forecast Output',
             marker: { color: '#f97316', size: 10, symbol: 'star' }
         };
+        chartTraces.push(tracePrediction);
         
         const traceDMA50 = {
             x: dates,
@@ -469,7 +505,7 @@ function renderDynamicChart(data) {
             marker: { color: isLight ? 'rgba(147, 197, 253, 0.8)' : 'rgba(96, 165, 250, 0.6)' }
         };
         
-        chartTraces = [traceVolume, traceDMA50, traceDMA200, tracePrice, tracePrediction];
+        chartTraces = [traceVolume, traceDMA50, traceDMA200, ...chartTraces];
         
         layout = {
             paper_bgcolor: 'transparent',
@@ -490,7 +526,8 @@ function renderDynamicChart(data) {
                 range: [0, maxVolumeInK * 1.8], tickfont: { size: 10, color: textColor },
                 ticksuffix: 'k', tickformat: ',', side: 'left' 
             },
-            showlegend: false
+            showlegend: false,
+            dragmode: false
         };
     } else if (activeDataTab === 'pe') {
         // --- MATHEMATICAL MOCK GENERATOR FOR PE & EPS ---
@@ -571,7 +608,8 @@ function renderDynamicChart(data) {
                 range: [0, maxEps * 1.5], tickfont: { size: 10, color: textColor },
                 side: 'left' 
             },
-            showlegend: false
+            showlegend: false,
+            dragmode: false
         };
     } else {
         // Fallback for 'Sales & Margin' / 'EV / EBITDA' / 'Price to Book'
@@ -599,7 +637,7 @@ function renderDynamicChart(data) {
         Plotly.restyle('chart-container', {visible: showVol ? true : 'legendonly'}, [0]);
         Plotly.restyle('chart-container', {visible: showDMA50 ? true : 'legendonly'}, [1]);
         Plotly.restyle('chart-container', {visible: showDMA200 ? true : 'legendonly'}, [2]);
-        Plotly.restyle('chart-container', {visible: showPrice ? true : 'legendonly'}, [3, 4]);
+        Plotly.restyle('chart-container', {visible: showPrice ? true : 'legendonly'}, [chartTraces.length - 2, chartTraces.length - 1]);
     } else if (activeDataTab === 'pe') {
         const showEPS = document.getElementById('toggle-eps').checked;
         const showMedian = document.getElementById('toggle-median-pe').checked;
@@ -609,6 +647,29 @@ function renderDynamicChart(data) {
         Plotly.restyle('chart-container', {visible: showMedian ? true : 'legendonly'}, [1]);
         Plotly.restyle('chart-container', {visible: showPE ? true : 'legendonly'}, [2]);
     }
+}
+
+// Zoom Controls
+document.getElementById('zoom-in').addEventListener('click', () => handleZoom('in'));
+document.getElementById('zoom-out').addEventListener('click', () => handleZoom('out'));
+
+function handleZoom(direction) {
+    const gd = document.getElementById('chart-container');
+    if (!gd || !gd.layout || !gd.layout.xaxis || !gd.layout.xaxis.range) return;
+
+    const range = gd.layout.xaxis.range;
+    const start = new Date(range[0]).getTime();
+    const end = new Date(range[1]).getTime();
+    const diff = end - start;
+    const center = start + diff / 2;
+
+    const factor = direction === 'in' ? 0.7 : 1.4;
+    const newDiff = diff * factor;
+    
+    const newStart = new Date(center - newDiff / 2).toISOString();
+    const newEnd = new Date(center + newDiff / 2).toISOString();
+
+    Plotly.relayout('chart-container', { 'xaxis.range': [newStart, newEnd] });
 }
 
 // Toggle Read More
@@ -625,7 +686,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-let selectedTimeframe = '1Y';
 
 document.querySelectorAll('.interval-btn[data-period]').forEach(btn => {
     btn.addEventListener('click', (e) => {

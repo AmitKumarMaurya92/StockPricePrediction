@@ -1,4 +1,4 @@
-# 📈 Stock Price Prediction
+# 📈 StockSense AI
 
 A machine learning-based web application that predicts stock prices using historical market data and advanced algorithms. This project helps users analyze trends, visualize stock performance, and forecast future prices.
 
@@ -42,7 +42,7 @@ Stock prediction systems typically rely on models like regression, LSTM, or othe
 
 ## 📂 Project Structure
 ```text
-StockPricePrediction/
+StockSense AI/
 │── data/                # Dataset files
 │── notebooks/           # Jupyter notebooks
 │── model/               # Trained models
@@ -66,8 +66,8 @@ StockPricePrediction/
 
 1️⃣ **Clone the Repository**
 ```bash
-git clone https://github.com/AmitKumarMaurya92/StockPricePrediction.git
-cd StockPricePrediction
+git clone https://github.com/AmitKumarMaurya92/StockSense-AI.git
+cd StockSense-AI
 ```
 
 2️⃣ **Create a Virtual Environment (Optional but Recommended)**
